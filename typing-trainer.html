@@ -178,7 +178,7 @@
       <button class="lvl hard" data-level="hard" aria-pressed="false">Сложный</button>
     </div>
     <div class="spacer"></div>
-    <div class="clock" id="clock"><b id="time">30</b><span>секунд</span></div>
+    <div class="clock" id="clock"><b id="time">0:30</b><span>осталось</span></div>
   </div>
 
   <div class="bar" id="bar"><i id="barFill"></i></div>
@@ -189,6 +189,7 @@
     <div class="hint">
       <span>Верно — <b style="color:var(--teal)">бирюзовый</b>, ошибка — <b style="color:var(--pink)">розовый</b>, текущая буква — <b style="color:#B08900">жёлтая</b>.</span>
       <span><kbd>Shift</kbd> — заглавные</span>
+      <span>Вместо тире «—» подойдёт <kbd>-</kbd>, вместо «ёлочек» — <kbd>"</kbd></span>
     </div>
 
     <div class="results" id="results">
@@ -211,7 +212,7 @@
   <div class="actions">
     <button class="btn" id="again">Начать заново</button>
     <button class="btn pink" id="newText">Новый текст</button>
-    <button class="btn ghost" id="secs">Время: 30 с</button>
+    <button class="btn ghost" id="secs">Время: 30 секунд</button>
   </div>
 
   <div class="filerow">
@@ -363,8 +364,31 @@ DeepSeek, ChatGPT и Claude — это большие языковые моде�
       tapme = el('tapme'), results = el('results'), clock = el('clock'),
       timeEl = el('time'), bar = el('bar'), barFill = el('barFill');
 
-  var DURATIONS = [30, 60, 120];
+  var DURATIONS = [30, 60, 120, 300];
+  var DUR_LABELS = ['30 секунд', '1 минута', '2 минуты', '5 минут'];
   var durIdx = 0;
+
+  function fmtTime(sec){
+    var m = Math.floor(sec / 60), s = sec % 60;
+    return m + ':' + (s < 10 ? '0' + s : s);
+  }
+
+  /* символы, которых нет на обычной клавиатуре: принимаем замену */
+  var ALIASES = {
+    '\u2014': ['-', '\u2013'],            // длинное тире
+    '\u2013': ['-', '\u2014'],            // среднее тире
+    '\u00AB': ['"'], '\u00BB': ['"'],     // кавычки-ёлочки
+    '\u201E': ['"'], '\u201C': ['"'], '\u201D': ['"'],
+    '\u2026': ['.'],                      // многоточие
+    '\u00A0': [' ']                       // неразрывный пробел
+  };
+  function matches(typed, expected){
+    if (typed === expected) return true;
+    var alt = ALIASES[expected];
+    if (!alt) return false;
+    for (var i = 0; i < alt.length; i++) if (alt[i] === typed) return true;
+    return false;
+  }
 
   var LIB = { easy: [], medium: [], hard: [] };
   var level = 'easy';
@@ -462,7 +486,7 @@ DeepSeek, ChatGPT и Claude — это большие языковые моде�
     started = false; finished = false;
     correct = 0; errors = 0;
     left = DURATIONS[durIdx];
-    timeEl.textContent = left;
+    timeEl.textContent = fmtTime(left);
     clock.classList.remove('low'); bar.classList.remove('low');
     barFill.style.width = '100%';
     stage.classList.remove('finished');
@@ -476,7 +500,7 @@ DeepSeek, ChatGPT и Claude — это большие языковые моде�
     timer = setInterval(function(){
       left--;
       if (left < 0) left = 0;
-      timeEl.textContent = left;
+      timeEl.textContent = fmtTime(left);
       barFill.style.width = (left / DURATIONS[durIdx] * 100) + '%';
       if (left <= 5){ clock.classList.add('low'); bar.classList.add('low'); }
       if (left <= 0) finish();
@@ -489,7 +513,7 @@ DeepSeek, ChatGPT и Claude — это большие языковые моде�
     if (!started) startTimer();
 
     var expected = chars[idx];
-    if (ch === expected || (expected === ' ' && ch === ' ')){
+    if (matches(ch, expected)){
       correct++;
       spans[idx].className = 'done' + (expected === ' ' ? ' space' : '');
       idx++;
@@ -579,7 +603,7 @@ DeepSeek, ChatGPT и Claude — это большие языковые моде�
   el('newText').addEventListener('click', function(){ resetAll(true); });
   el('secs').addEventListener('click', function(){
     durIdx = (durIdx + 1) % DURATIONS.length;
-    this.textContent = 'Время: ' + DURATIONS[durIdx] + ' с';
+    this.textContent = 'Время: ' + DUR_LABELS[durIdx];
     resetAll(false);
   });
 
@@ -602,6 +626,20 @@ DeepSeek, ChatGPT и Claude — это большие языковые моде�
   });
 
   resetAll(true);
+
+  /* Если рядом с html лежит texts.txt и страница открыта с сайта (GitHub Pages,
+     локальный сервер), тексты берутся из него автоматически.
+     При открытии файла напрямую с диска (file://) браузер это запрещает —
+     тогда работает встроенный набор, а свой файл можно подключить кнопкой. */
+  try {
+    fetch('texts.txt', { cache: 'no-store' })
+      .then(function(r){ return r.ok ? r.text() : null; })
+      .then(function(t){
+        if (!t || !t.trim()) return;
+        if (loadLibrary(t, 'Тексты взяты из файла texts.txt рядом со страницей.') && !started) resetAll(true);
+      })
+      .catch(function(){ /* офлайн-режим, остаётся встроенный набор */ });
+  } catch (e) {}
 })();
 </script>
 </body>
