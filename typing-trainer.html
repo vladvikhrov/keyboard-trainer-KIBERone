@@ -159,9 +159,91 @@
   .score.t b{color:var(--teal)}
   .score.p b{color:var(--pink)}
   footer{margin-top:22px;font-size:13px;color:rgba(255,255,255,.45);text-align:center}
+
+  /* ---------- всплывающие сообщения ---------- */
+  .toast{
+    position:absolute;top:14px;left:50%;transform:translateX(-50%) translateY(-12px);
+    background:var(--violet);color:#fff;font-weight:bold;font-size:15px;
+    padding:9px 18px;border-radius:999px;box-shadow:0 8px 20px rgba(0,0,0,.25);
+    opacity:0;pointer-events:none;transition:opacity .25s ease, transform .25s ease;
+    z-index:5;white-space:nowrap;max-width:90%;overflow:hidden;text-overflow:ellipsis;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .toast.teal{background:var(--teal);color:var(--ink)}
+  .toast.pink{background:var(--pink)}
+  .toast.yellow{background:var(--yellow);color:var(--ink)}
+
+  /* серия без ошибок */
+  .streak{
+    margin-top:14px;font-size:14px;color:#6E67A0;display:flex;align-items:center;gap:8px;
+  }
+  .streak b{color:var(--pink);font-variant-numeric:tabular-nums;font-size:16px}
+  .streak.hot b{color:var(--violet)}
+  .pop{animation:pop .28s ease}
+  @keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.35)}100%{transform:scale(1)}}
+
+  /* мягкое свечение текущей буквы */
+  .text .cur{animation:glow 1.3s ease-in-out infinite}
+  @keyframes glow{
+    0%,100%{box-shadow:0 0 0 3px rgba(255,214,10,.45)}
+    50%{box-shadow:0 0 0 6px rgba(255,214,10,.18)}
+  }
+  .text .cur.wrong{animation:none}
+
+  /* появление результатов */
+  .results.show{animation:rise .4s ease}
+  @keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+  .score{animation:rise .45s ease both}
+  .score:nth-child(2){animation-delay:.08s}
+  .score:nth-child(3){animation-delay:.16s}
+
+  /* ---------- клавиатура ---------- */
+  .kbwrap{margin-top:18px;border-top:2px dashed #E5DEFA;padding-top:14px}
+  .kbhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  .kbhead .kbtitle{font-size:14px;color:#6E67A0;font-weight:bold}
+  .toggle{
+    margin-left:auto;background:#EEE9FF;color:var(--violet);
+    border-radius:14px;padding:8px 14px;font-size:14px;font-weight:bold;
+    transition:background .2s ease;
+  }
+  .toggle:hover{background:#E2D8FF}
+  .keyboard{display:none;user-select:none}
+  .keyboard.show{display:block}
+  .krow{display:flex;gap:5px;justify-content:center;margin-bottom:5px}
+  .key{
+    flex:1 1 0;min-width:0;
+    background:#F4F0FF;color:#5B4B8A;
+    border-radius:9px;padding:9px 2px;text-align:center;
+    font-size:clamp(11px,1.7vw,15px);font-weight:bold;
+    box-shadow:0 2px 0 #DAD0F5;transition:background .12s ease, transform .08s ease, color .12s ease;
+  }
+  .key.wide{flex:2 1 0}
+  .key.space{flex:6 1 0}
+  /* подсветка нужной клавиши, цвет по руке */
+  .key.hl{transform:translateY(1px);box-shadow:0 1px 0 rgba(0,0,0,.2)}
+  .key.hl.left{background:var(--teal);color:var(--ink)}
+  .key.hl.right{background:var(--pink);color:#fff}
+  .key.hl.thumb{background:var(--yellow);color:var(--ink)}
+  .kbhint{margin-top:8px;font-size:12px;color:#8C86A8;display:flex;gap:14px;flex-wrap:wrap}
+  .kbhint span{display:inline-flex;align-items:center;gap:5px}
+  .kbdot{width:12px;height:12px;border-radius:4px;display:inline-block}
+  .kbdot.l{background:var(--teal)}.kbdot.r{background:var(--pink)}.kbdot.t{background:var(--yellow)}
+
+  @media (prefers-reduced-motion: reduce){
+    .text .cur{animation:none}
+    .results.show,.score{animation:none}
+    .pop{animation:none}
+  }
+  @media (max-width:520px){
+    .key{padding:7px 1px;border-radius:7px}
+  }
+
+  /* конфетти */
+  #confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
 </style>
 </head>
 <body>
+<canvas id="confetti"></canvas>
 <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div>
 
 <div class="wrap">
@@ -184,7 +266,10 @@
   <div class="bar" id="bar"><i id="barFill"></i></div>
 
   <div class="stage" id="stage">
+    <div class="toast" id="toast"></div>
     <div class="text" id="text" aria-live="off"></div>
+
+    <div class="streak" id="streak" hidden>Серия без ошибок: <b id="streakNum">0</b></div>
 
     <div class="hint">
       <span>Верно — <b style="color:var(--teal)">бирюзовый</b>, ошибка — <b style="color:var(--pink)">розовый</b>, текущая буква — <b style="color:#B08900">жёлтая</b>.</span>
@@ -207,6 +292,19 @@
       <small>Текст ниже появится сразу — таймер пойдёт после первой буквы.</small>
     </div>
     <input class="capture" id="capture" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Поле ввода текста">
+
+    <div class="kbwrap">
+      <div class="kbhead">
+        <span class="kbtitle">Схема клавиатуры</span>
+        <button class="toggle" id="kbToggle" aria-pressed="false">Показать подсказку</button>
+      </div>
+      <div class="keyboard" id="keyboard" aria-hidden="true"></div>
+      <div class="kbhint" id="kbhint" hidden>
+        <span><i class="kbdot l"></i> левая рука</span>
+        <span><i class="kbdot r"></i> правая рука</span>
+        <span><i class="kbdot t"></i> большой палец (пробел)</span>
+      </div>
+    </div>
   </div>
 
   <div class="actions">
@@ -220,7 +318,7 @@
     <span id="fileInfo">Сейчас используется встроенный набор текстов.</span>
   </div>
 
-  <footer>Работает офлайн: ни интернет, ни вход в аккаунт не нужны.</footer>
+  <footer>Работает офлайн: ни интернет, ни вход в аккаунт не нужны. Нажми «Показать подсказку», если нужна схема клавиатуры.</footer>
 </div>
 
 <script type="text/plain" id="defaultTexts">
@@ -256,6 +354,22 @@
 клавиша пробел буква слово строка абзац текст шрифт кегль макет
 
 диск кабель порт роутер модем сеть адрес ссылка вкладка окно
+
+день лето зима весна осень туча роса иней лужа поле
+
+школа урок оценка мелок доска глобус атлас циркул линейка ластик
+
+пёс кот ёж лис волк лось олень заяц белка ёжик
+
+пицца сыр булка каша плов рис гречка овощ фрукт ягода
+
+синий белый серый алый жёлтый рыжий бурый чёрный тёмный яркий
+
+прыжок бросок удар пас гол сет матч раунд финиш кубок
+
+нота такт ритм песня хор бас соло дуэт марш вальс
+
+руль колесо мотор фара капот салон багаж тормоз педаль сигнал
 
 # СРЕДНИЙ
 
@@ -319,6 +433,36 @@
 
 Чем ровнее ритм, тем выше скорость набора.
 
+Хорошая привычка — сначала думать, а потом печатать.
+
+Умный помощник отвечает быстрее, если задать точный вопрос.
+
+Мы придумали название для своей первой компьютерной игры.
+
+Планета Земля вращается вокруг Солнца целый год.
+
+Учитель показал, как из простых блоков собрать сайт.
+
+Клавиатура делится на буквы, цифры и служебные клавиши.
+
+Каждый пиксель на экране светится своим цветом.
+
+Прежде чем нажать кнопку, прочитай, что она делает.
+
+Резервная копия спасает проект, если что-то сломалось.
+
+Ошибку легче найти, если код написан аккуратно.
+
+Настоящий инженер проверяет свою работу несколько раз.
+
+Робот-пылесос объезжает мебель по заранее заданной карте.
+
+Датчик света включает лампу, когда в комнате темнеет.
+
+Мы разложили большую задачу на несколько маленьких шагов.
+
+В команде каждый отвечает за свою часть проекта.
+
 # СЛОЖНЫЙ
 
 KIBERONE — это международная кибершкола, где дети от шести до четырнадцати лет учатся создавать сайты, игры и приложения, а не просто пользоваться ими. На занятиях мы разбираем, как устроены современные технологии изнутри, и превращаем идеи в работающие проекты.
@@ -353,6 +497,20 @@ DeepSeek, ChatGPT и Claude — это большие языковые моде�
 
 Скорость печати напрямую влияет на скорость мышления за компьютером: пока пальцы ищут букву, идея успевает ускользнуть. Слепой набор освобождает голову для главного — для задачи, которую ты решаешь.
 
+Облачное хранилище держит твои файлы на далёком сервере, а ты открываешь их с любого устройства через интернет. Это удобно, но помни: важные документы стоит хранить ещё и в одном месте, которое не зависит от сети.
+
+Открытый исходный код — это программы, которые любой человек может изучить, улучшить и использовать бесплатно. На таком коде построены браузеры, операционные системы и множество инструментов, которыми пользуются миллионы разработчиков по всему миру.
+
+Капча — это маленькая проверка, которая отличает человека от робота. Она просит ввести кривые буквы или выбрать картинки со светофорами, чтобы защитить сайт от программ, которые действуют слишком быстро и массово.
+
+Игровой искусственный интеллект управляет противниками и помощниками: он выбирает, куда идти, когда атаковать и как реагировать на игрока. Чем умнее написаны правила, тем живее кажется мир игры, хотя за всем стоит обычный алгоритм.
+
+Двухфакторная защита добавляет к паролю второй ключ — код из приложения или сообщения. Даже если злоумышленник узнает пароль, без второго кода войти в аккаунт он не сможет, и это делает защиту заметно надёжнее.
+
+Веб-дизайнер думает не только о красоте, но и о том, как человек пользуется страницей. Он выстраивает понятный путь от заголовка к кнопке, подбирает читаемый шрифт и следит, чтобы сайт одинаково хорошо работал на телефоне и на большом мониторе.
+
+Модель машинного обучения учится на примерах: ей показывают тысячи фотографий кошек, и постепенно она начинает узнавать кошку на новой картинке. Она не понимает, что такое кошка, но умеет находить знакомые признаки и делать вывод.
+
 </script>
 
 <script>
@@ -362,7 +520,13 @@ DeepSeek, ChatGPT и Claude — это большие языковые моде�
   var el = function(id){ return document.getElementById(id); };
   var textBox = el('text'), capture = el('capture'), stage = el('stage'),
       tapme = el('tapme'), results = el('results'), clock = el('clock'),
-      timeEl = el('time'), bar = el('bar'), barFill = el('barFill');
+      timeEl = el('time'), bar = el('bar'), barFill = el('barFill'),
+      toast = el('toast'), streakBox = el('streak'), streakNum = el('streakNum'),
+      keyboard = el('keyboard');
+
+  var streak = 0, bestStreak = 0;
+  var reduceMotion = window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   var DURATIONS = [30, 60, 120, 300];
   var DUR_LABELS = ['30 секунд', '1 минута', '2 минуты', '5 минут'];
@@ -396,6 +560,135 @@ DeepSeek, ChatGPT и Claude — это большие языковые моде�
   var correct = 0, errors = 0, wrongNow = false;
   var started = false, finished = false, timer = null, left = 30;
   var lastPicked = { easy: -1, medium: -1, hard: -1 };
+
+  /* ---------- всплывающие сообщения ---------- */
+  var START_MSG = ['Поехали!', 'Вперёд!', 'Ну-ка, покажи класс!', 'Готовься... старт!', 'Давай, ты сможешь!'];
+  var STREAK_MSG = {
+    10: 'Хорошо идёшь!',
+    20: 'Уже 20 без ошибок!',
+    30: 'Огонь! Так держать!',
+    50: 'Ничего себе, полсотни подряд!',
+    75: 'Ты в ударе!',
+    100: 'Сотня без единой ошибки! Космос!'
+  };
+  var toastTimer = null;
+  function showToast(text, kind){
+    if (!text) return;
+    toast.textContent = text;
+    toast.className = 'toast show' + (kind ? ' ' + kind : '');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toast.className = 'toast' + (kind ? ' ' + kind : ''); }, 1400);
+  }
+  function pick(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
+
+  function bumpStreak(){
+    streak++;
+    if (streak > bestStreak) bestStreak = streak;
+    if (streak >= 5){
+      streakBox.hidden = false;
+      streakNum.textContent = streak;
+      streakBox.classList.toggle('hot', streak >= 30);
+      if (!reduceMotion){
+        streakNum.classList.remove('pop'); void streakNum.offsetWidth; streakNum.classList.add('pop');
+      }
+    }
+    if (STREAK_MSG[streak]) showToast(STREAK_MSG[streak], 'teal');
+  }
+  function resetStreak(){
+    streak = 0;
+    streakBox.hidden = true;
+    streakBox.classList.remove('hot');
+  }
+
+  /* ---------- клавиатура: раскладка ЙЦУКЕН и распределение пальцев ---------- */
+  var KB_ROWS = [
+    ['й','ц','у','к','е','н','г','ш','щ','з','х','ъ'],
+    ['ф','ы','в','а','п','р','о','л','д','ж','э'],
+    ['я','ч','с','м','и','т','ь','б','ю','.']
+  ];
+  // какая рука отвечает за клавишу (для подсветки пальца)
+  // левая рука по десятипальцевому методу: й ц у к е / ф ы в а п / я ч с м и
+  var LEFT_KEYS = 'йцукефывапячсми12345ё';
+  function handOf(ch){
+    if (ch === ' ') return 'thumb';
+    return LEFT_KEYS.indexOf(ch) !== -1 ? 'left' : 'right';
+  }
+  var keyMap = {}; // символ -> элемент клавиши
+  function buildKeyboard(){
+    keyboard.innerHTML = '';
+    for (var r = 0; r < KB_ROWS.length; r++){
+      var row = document.createElement('div');
+      row.className = 'krow';
+      for (var c = 0; c < KB_ROWS[r].length; c++){
+        var ch = KB_ROWS[r][c];
+        var k = document.createElement('div');
+        k.className = 'key';
+        k.textContent = ch.toUpperCase();
+        keyMap[ch] = k;
+        row.appendChild(k);
+      }
+      keyboard.appendChild(row);
+    }
+    // ряд с пробелом
+    var last = document.createElement('div');
+    last.className = 'krow';
+    var space = document.createElement('div');
+    space.className = 'key space';
+    space.textContent = 'пробел';
+    keyMap[' '] = space;
+    last.appendChild(space);
+    keyboard.appendChild(last);
+  }
+  var hlKey = null;
+  function highlightKey(ch){
+    if (hlKey){ hlKey.className = hlKey.className.replace(/ hl.*/, ''); hlKey = null; }
+    if (keyboard.className.indexOf('show') === -1) return;
+    if (!ch) return;
+    var low = ch.toLowerCase();
+    var target = keyMap[low];
+    if (low === 'ё') target = keyMap['е'];     // ё показываем на е
+    if (!target) return;
+    var hand = handOf(low);
+    target.className = 'key' + (low === ' ' ? ' space' : '') + ' hl ' + hand;
+    hlKey = target;
+  }
+
+  /* ---------- конфетти ---------- */
+  function confetti(){
+    if (reduceMotion) return;
+    var cv = el('confetti'), ctx = cv.getContext('2d');
+    cv.width = innerWidth; cv.height = innerHeight;
+    var colors = ['#6C2BD9','#17C3B2','#F72585','#FFD60A','#fff'];
+    var parts = [];
+    for (var i = 0; i < 140; i++){
+      parts.push({
+        x: Math.random() * cv.width,
+        y: -20 - Math.random() * cv.height * 0.4,
+        s: 6 + Math.random() * 7,
+        vy: 2 + Math.random() * 4,
+        vx: -2 + Math.random() * 4,
+        rot: Math.random() * 6.28,
+        vr: -0.2 + Math.random() * 0.4,
+        col: colors[i % colors.length]
+      });
+    }
+    var frames = 0;
+    (function anim(){
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      for (var i = 0; i < parts.length; i++){
+        var p = parts[i];
+        p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.vy += 0.04;
+        ctx.save();
+        ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+        ctx.fillStyle = p.col;
+        ctx.fillRect(-p.s / 2, -p.s / 2, p.s, p.s * 0.6);
+        ctx.restore();
+      }
+      frames++;
+      if (frames < 160) requestAnimationFrame(anim);
+      else ctx.clearRect(0, 0, cv.width, cv.height);
+    })();
+  }
 
   /* ---------- разбор файла с текстами ---------- */
   function parseTexts(raw){
@@ -469,13 +762,14 @@ DeepSeek, ChatGPT и Claude — это большие языковые моде�
   }
 
   function markCurrent(){
-    if (idx >= spans.length) return;
+    if (idx >= spans.length){ highlightKey(null); return; }
     var s = spans[idx];
     s.className = 'cur' + (chars[idx] === ' ' ? ' space' : '') + (wrongNow ? ' wrong' : '');
     var top = s.offsetTop - textBox.offsetTop, h = textBox.clientHeight;
     if (top - textBox.scrollTop > h - 70 || top < textBox.scrollTop){
       textBox.scrollTop = Math.max(0, top - h / 2);
     }
+    highlightKey(chars[idx]);
   }
 
   /* ---------- игра ---------- */
@@ -485,6 +779,7 @@ DeepSeek, ChatGPT и Claude — это большие языковые моде�
     clearInterval(timer); timer = null;
     started = false; finished = false;
     correct = 0; errors = 0;
+    resetStreak();
     left = DURATIONS[durIdx];
     timeEl.textContent = fmtTime(left);
     clock.classList.remove('low'); bar.classList.remove('low');
@@ -497,6 +792,7 @@ DeepSeek, ChatGPT и Claude — это большие языковые моде�
 
   function startTimer(){
     started = true;
+    showToast(pick(START_MSG), 'yellow');
     timer = setInterval(function(){
       left--;
       if (left < 0) left = 0;
@@ -515,6 +811,7 @@ DeepSeek, ChatGPT и Claude — это большие языковые моде�
     var expected = chars[idx];
     if (matches(ch, expected)){
       correct++;
+      bumpStreak();
       spans[idx].className = 'done' + (expected === ' ' ? ' space' : '');
       idx++;
       wrongNow = false;
@@ -522,11 +819,15 @@ DeepSeek, ChatGPT и Claude — это большие языковые моде�
       else markCurrent();
     } else {
       errors++;
+      if (streak >= 15) showToast('Ничего, серия была отличная!', 'pink');
+      resetStreak();
       wrongNow = true;
       markCurrent();
-      textBox.classList.remove('shake');
-      void textBox.offsetWidth;
-      textBox.classList.add('shake');
+      if (!reduceMotion){
+        textBox.classList.remove('shake');
+        void textBox.offsetWidth;
+        textBox.classList.add('shake');
+      }
     }
   }
 
@@ -548,13 +849,23 @@ DeepSeek, ChatGPT и Claude — это большие языковые моде�
     else if (cpm < 180) rank = 'Отличная скорость! Ты печатаешь быстрее большинства ребят.';
     else if (cpm < 250) rank = 'Мастер клавиатуры. Пальцы работают как у разработчика.';
     else rank = 'Легенда кибершколы! Такой скорости можно позавидовать.';
-    if (acc < 90) rank += ' Точность пока проседает — попробуй печатать чуть медленнее и ровнее.';
+    if (acc >= 98) rank += ' И почти без ошибок — блестящая точность!';
+    else if (acc < 90) rank += ' Точность пока проседает — попробуй печатать чуть медленнее и ровнее.';
+    if (bestStreak >= 20) rank += ' Лучшая серия без ошибок: ' + bestStreak + ' знаков подряд.';
 
     el('rank').textContent = rank;
-    el('resTitle').textContent = 'Время вышло!';
+    // заголовок зависит от результата
+    if (acc >= 90 && cpm >= 100) el('resTitle').textContent = 'Отличный результат!';
+    else if (acc >= 95) el('resTitle').textContent = 'Очень аккуратно!';
+    else el('resTitle').textContent = 'Время вышло!';
+
     stage.classList.add('finished');
     results.classList.add('show');
     tapme.classList.add('hidden');
+    highlightKey(null);
+
+    // конфетти за хороший результат
+    if (acc >= 90 && cpm >= 100) confetti();
   }
 
   /* ---------- ввод ---------- */
@@ -598,6 +909,17 @@ DeepSeek, ChatGPT и Claude — это большие языковые моде�
       resetAll(true);
     });
   }
+
+  buildKeyboard();
+  el('kbToggle').addEventListener('click', function(){
+    var on = keyboard.classList.toggle('show');
+    keyboard.setAttribute('aria-hidden', on ? 'false' : 'true');
+    this.setAttribute('aria-pressed', on ? 'true' : 'false');
+    this.textContent = on ? 'Скрыть подсказку' : 'Показать подсказку';
+    el('kbhint').hidden = !on;
+    if (on) highlightKey(chars[idx]);
+    focusInput();
+  });
 
   el('again').addEventListener('click', function(){ resetAll(false); });
   el('newText').addEventListener('click', function(){ resetAll(true); });
