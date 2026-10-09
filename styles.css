@@ -1,7 +1,7 @@
 /* ========================================================================
    KIBERONE — тренажёры клавиатуры. Единый файл стилей для всех страниц.
    Общие компоненты — без префикса. Различия страниц заскоуплены классами
-   body.page-typing и body.page-hotkeys (класс проставлен в <body>).
+   body.page-typing, body.page-hotkeys и body.page-game (класс проставлен в <body>).
 
    Цвет кнопки задаётся классом-модификатором:
    .teal .pink .yellow .orange .violet .blue .ghost
@@ -76,6 +76,7 @@ button{font-family:inherit;cursor:pointer;border:none}
 .nav-item.active{box-shadow:0 5px 0 rgba(0,0,0,.22)}
 .page-typing .nav-item.active{background:var(--teal);color:var(--ink)}
 .page-hotkeys .nav-item.active{background:var(--pink);color:#fff}
+.page-game .nav-item.active{background:var(--orange);color:var(--ink)}
 .side-foot{margin-top:auto;font-size:12px;color:rgba(255,255,255,.4);padding:10px;line-height:1.5}
 
 .wrap{flex:1 1 auto;min-width:0;max-width:900px;margin:0 auto;padding:22px 16px 48px}
@@ -236,6 +237,35 @@ h1:hover .kbd{transform:rotate(6deg) scale(1.1)}
 .score.p b{color:var(--pink)}
 .rec-note{margin:14px 0 0;font-weight:bold;color:var(--pink);font-size:16px;min-height:1.2em}
 
+/* ---------- схема клавиатуры (печать и игра) ---------- */
+.keyboard{display:none;user-select:none}
+.keyboard.show{display:block;animation:rise .25s ease}
+.krow{display:flex;gap:5px;justify-content:center;margin-bottom:5px}
+.key{
+    flex:1 1 0;min-width:0;
+    background:var(--lilac);color:#5B4B8A;
+    border-radius:9px;padding:9px 2px;text-align:center;
+    font-size:clamp(11px,1.7vw,15px);font-weight:bold;
+    box-shadow:0 2px 0 #DAD0F5;transition:background .12s ease, transform .08s ease, color .12s ease;
+  }
+.key.wide{flex:2 1 0}
+.key.space{flex:6 1 0}
+/* подсветка нужной клавиши, цвет по руке */
+.key.hl{transform:translateY(1px);box-shadow:0 1px 0 rgba(0,0,0,.2)}
+.key.hl.left{background:var(--teal);color:var(--ink)}
+.key.hl.right{background:var(--pink);color:#fff}
+.key.hl.thumb{background:var(--yellow);color:var(--ink)}
+.kbhint{margin-top:8px;font-size:12px;color:#8C86A8;display:flex;gap:14px;flex-wrap:wrap}
+.kbhint span{display:inline-flex;align-items:center;gap:5px}
+.kbdot{width:12px;height:12px;border-radius:4px;display:inline-block}
+.kbdot.l{background:var(--teal)}
+.kbdot.r{background:var(--pink)}
+.kbdot.t{background:var(--yellow)}
+
+@media (max-width:520px) {
+  .key{padding:7px 1px;border-radius:7px}
+}
+
 footer{margin-top:26px;font-size:13px;color:rgba(255,255,255,.45);text-align:center}
 .pop{animation:pop .28s ease}
 
@@ -328,33 +358,6 @@ footer{margin-top:26px;font-size:13px;color:rgba(255,255,255,.45);text-align:cen
 .page-typing .kbwrap{margin-top:18px;border-top:2px dashed #E5DEFA;padding-top:14px}
 .page-typing .kbhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
 .page-typing .kbhead .kbtitle{font-size:14px;color:var(--soft);font-weight:bold}
-.page-typing .keyboard{display:none;user-select:none}
-.page-typing .keyboard.show{display:block;animation:rise .25s ease}
-.page-typing .krow{display:flex;gap:5px;justify-content:center;margin-bottom:5px}
-.page-typing .key{
-    flex:1 1 0;min-width:0;
-    background:var(--lilac);color:#5B4B8A;
-    border-radius:9px;padding:9px 2px;text-align:center;
-    font-size:clamp(11px,1.7vw,15px);font-weight:bold;
-    box-shadow:0 2px 0 #DAD0F5;transition:background .12s ease, transform .08s ease, color .12s ease;
-  }
-.page-typing .key.wide{flex:2 1 0}
-.page-typing .key.space{flex:6 1 0}
-/* подсветка нужной клавиши, цвет по руке */
-.page-typing .key.hl{transform:translateY(1px);box-shadow:0 1px 0 rgba(0,0,0,.2)}
-.page-typing .key.hl.left{background:var(--teal);color:var(--ink)}
-.page-typing .key.hl.right{background:var(--pink);color:#fff}
-.page-typing .key.hl.thumb{background:var(--yellow);color:var(--ink)}
-.page-typing .kbhint{margin-top:8px;font-size:12px;color:#8C86A8;display:flex;gap:14px;flex-wrap:wrap}
-.page-typing .kbhint span{display:inline-flex;align-items:center;gap:5px}
-.page-typing .kbdot{width:12px;height:12px;border-radius:4px;display:inline-block}
-.page-typing .kbdot.l{background:var(--teal)}
-.page-typing .kbdot.r{background:var(--pink)}
-.page-typing .kbdot.t{background:var(--yellow)}
-
-@media (max-width:520px) {
-  .page-typing .key{padding:7px 1px;border-radius:7px}
-}
 
 
 /* ========================================================================
@@ -433,12 +436,101 @@ footer{margin-top:26px;font-size:13px;color:rgba(255,255,255,.45);text-align:cen
 .page-hotkeys .cheat-item .star{color:var(--yellow)}
 
 
+/* ========================================================================
+   Страница «Буквопад» (игра)
+   ======================================================================== */
+
+/* «Как играть»: свёрнуто, чтобы поле помещалось на экран */
+.page-game .howto{margin:0 0 14px;background:rgba(255,255,255,.06);border-radius:14px;color:var(--muted);font-size:15px}
+.page-game .howto summary{cursor:pointer;padding:10px 15px;font-weight:bold;color:#fff;list-style:none;user-select:none}
+.page-game .howto summary::-webkit-details-marker{display:none}
+.page-game .howto summary::after{content:" ▾";color:var(--muted)}
+.page-game .howto[open] summary::after{content:" ▴"}
+.page-game .howto summary:focus-visible{outline:3px solid var(--yellow);outline-offset:2px;border-radius:14px}
+.page-game .howto ul{margin:0;padding:0 18px 12px 36px;line-height:1.55}
+.page-game .howto b{color:#fff}
+
+/* верхняя панель: сложность, счёт, жизни, время, пауза */
+.page-game .panel{padding:10px 12px;margin-bottom:12px}
+.page-game .hud{display:flex;align-items:center;gap:10px;margin-left:auto}   /* счёт, жизни, время и пауза переносятся вместе */
+.page-game .stats{display:flex;gap:16px;font-size:12px;color:var(--muted);text-align:center}
+.page-game .stats b{display:block;font-size:22px;line-height:1;font-variant-numeric:tabular-nums}
+.page-game .stats .t b{color:var(--teal)}
+.page-game .stats .p b{color:var(--pink)}
+.page-game .lives{display:flex;gap:3px;font-size:22px;line-height:1}
+.page-game .lives span{transition:opacity .2s ease, filter .2s ease}
+.page-game .lives span.lost{opacity:.25;filter:grayscale(1)}
+.page-game .toggle{margin-left:0;font-size:18px;padding:8px 12px}
+.page-game .clock{padding:8px 14px}
+.page-game .clock span{display:none}   /* в игре без подписи «осталось», чтобы панель уместилась в строку */
+.page-game .toggle:disabled{opacity:.45;cursor:default;filter:none;transform:none}
+.page-game .record{margin:0 0 12px;padding:8px 14px}
+
+/* игровое поле: высота подстраивается под окно, чтобы всё помещалось без прокрутки */
+.page-game .stage{padding:0;overflow:hidden;min-height:0}
+.page-game .field{position:relative;overflow:hidden;
+    height:clamp(260px, calc(100vh - 330px), 560px);
+    background:linear-gradient(180deg,#fff 0%,#fff 82%,#FFE3EF 100%)}
+.page-game .stage.with-hint .field{height:clamp(220px, calc(100vh - 470px), 460px)}
+.page-game .field::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;background:var(--pink);opacity:.5}
+.page-game .letter{
+    position:absolute;top:0;width:58px;height:58px;margin-left:-29px;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--lilac);color:var(--violet);border-radius:16px;
+    font-size:30px;font-weight:bold;box-shadow:0 4px 0 #DAD0F5;
+    will-change:transform;
+  }
+.page-game .letter.low{background:var(--yellow);color:var(--ink);box-shadow:0 4px 0 #C9A500}
+.page-game .letter.hit{background:var(--teal);color:var(--ink);box-shadow:none;animation:hit .25s ease forwards}
+.page-game .letter.miss{background:var(--pink);color:#fff;box-shadow:none;animation:miss .35s ease forwards}
+.page-game .field.shake{animation:shake .18s}
+
+/* заставка поверх поля: старт, отсчёт, пауза */
+.page-game .overlay{
+    position:absolute;inset:0;z-index:2;
+    background:rgba(255,255,255,.92);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+    color:var(--violet);font-weight:bold;font-size:20px;text-align:center;padding:16px;
+    cursor:pointer;
+  }
+.page-game .overlay.hidden{display:none}
+.page-game .overlay small{font-weight:normal;color:var(--soft);font-size:14px;max-width:44ch;line-height:1.45}
+.page-game .overlay .big{font-size:56px;line-height:1;color:var(--orange)}
+.page-game .overlay .btn{margin-top:6px}
+.page-game .overlay .btn[hidden]{display:none}
+
+/* подсказка-клавиатура (только в лёгком режиме): компактная, без ряда с пробелом */
+.page-game .kbwrap{padding:10px 16px 10px;border-top:2px dashed #E5DEFA}
+.page-game .kbwrap[hidden]{display:none}
+.page-game .keyboard{max-width:620px;margin:0 auto}
+.page-game .krow{gap:4px;margin-bottom:4px}
+.page-game .krow:last-child{display:none}
+.page-game .key{padding:6px 2px;font-size:13px;border-radius:7px;transition:none}   /* подсветка без задержки */
+.page-game .kbhint{justify-content:center;margin-top:4px}
+
+/* результаты */
+.page-game .results{padding:22px 22px}
+.page-game .results.show{display:block}
+.page-game .results .actions{justify-content:center;margin-top:16px}
+.page-game .stage.finished .field, .page-game .stage.finished .kbwrap{display:none}
+
+@media (max-width:860px) {
+  .page-game .field{height:clamp(260px, calc(100vh - 400px), 520px)}
+  .page-game .stage.with-hint .field{height:clamp(220px, calc(100vh - 540px), 420px)}
+}
+
+@keyframes hit{to{transform:var(--at) scale(1.5);opacity:0}}
+@keyframes miss{to{opacity:0}}
+
+
 /* ---------- меньше движения, если так настроена система ---------- */
 @media (prefers-reduced-motion: reduce) {
   .blob, .shake, .pop, .clock.low b,
   .results.show, .results.burst h2, .score,
-  .page-typing .text .cur, .page-typing .keyboard.show,
-  .page-hotkeys .stage.flash-ok, .page-hotkeys .cheat-grid.show{animation:none}
+  .page-typing .text .cur, .keyboard.show,
+  .page-hotkeys .stage.flash-ok, .page-hotkeys .cheat-grid.show,
+  .page-game .field.shake{animation:none}
+  .page-game .letter.hit, .page-game .letter.miss{animation:none;opacity:0}
   .btn:hover, .btn:active, .mode:hover, .toggle:hover, .toggle:active,
   .nav-item:hover{transform:none}
   h1:hover .kbd{transform:rotate(-6deg)}

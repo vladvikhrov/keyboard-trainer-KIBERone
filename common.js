@@ -1,7 +1,7 @@
 /* ========================================================================
-   KIBERONE — общий код обоих тренажёров: рекорд сессии, конфетти,
-   форматирование времени, перезапуск анимаций.
-   Подключается ДО typing.js / hotkeys.js и создаёт window.KIBER.
+   KIBERONE — общий код всех страниц: рекорд сессии, конфетти,
+   форматирование времени, перезапуск анимаций, раскладка ЙЦУКЕН.
+   Подключается ДО typing.js / hotkeys.js / game.js и создаёт window.KIBER.
    ======================================================================== */
 (function(){
   "use strict";
@@ -81,6 +81,61 @@
     })();
   }
 
+  /* ---------- раскладка ЙЦУКЕН ----------
+     KB_ROWS — буквы по рядам для схемы клавиатуры.
+     KB_CODES — физические клавиши (e.code) на тех же местах: по ним игра
+     узнаёт букву при любой включённой раскладке. */
+  var KB_ROWS = [
+    ['й','ц','у','к','е','н','г','ш','щ','з','х','ъ'],
+    ['ф','ы','в','а','п','р','о','л','д','ж','э'],
+    ['я','ч','с','м','и','т','ь','б','ю','.']
+  ];
+  var KB_CODES = [
+    ['KeyQ','KeyW','KeyE','KeyR','KeyT','KeyY','KeyU','KeyI','KeyO','KeyP','BracketLeft','BracketRight'],
+    ['KeyA','KeyS','KeyD','KeyF','KeyG','KeyH','KeyJ','KeyK','KeyL','Semicolon','Quote'],
+    ['KeyZ','KeyX','KeyC','KeyV','KeyB','KeyN','KeyM','Comma','Period','Slash']
+  ];
+  // ё: слева от 1 на ПК; IntlBackslash — то же место на Mac с ISO-клавиатурой
+  var RU_BY_CODE = { Backquote: 'ё', IntlBackslash: 'ё' };
+  for (var r = 0; r < KB_ROWS.length; r++)
+    for (var c = 0; c < KB_ROWS[r].length; c++) RU_BY_CODE[KB_CODES[r][c]] = KB_ROWS[r][c];
+
+  // левая рука по десятипальцевому методу: й ц у к е / ф ы в а п / я ч с м и
+  var LEFT_KEYS = 'йцукефывапячсми12345ё';
+  function handOf(ch){
+    if (ch === ' ') return 'thumb';
+    return LEFT_KEYS.indexOf(ch) !== -1 ? 'left' : 'right';
+  }
+
+  /* рисует схему клавиатуры в container и возвращает { символ: элемент клавиши } */
+  function buildKeyboard(container){
+    var map = {};
+    container.innerHTML = '';
+    for (var r = 0; r < KB_ROWS.length; r++){
+      var row = document.createElement('div');
+      row.className = 'krow';
+      for (var c = 0; c < KB_ROWS[r].length; c++){
+        var ch = KB_ROWS[r][c];
+        var k = document.createElement('div');
+        k.className = 'key';
+        k.textContent = ch.toUpperCase();
+        map[ch] = k;
+        row.appendChild(k);
+      }
+      container.appendChild(row);
+    }
+    var last = document.createElement('div');
+    last.className = 'krow';
+    var space = document.createElement('div');
+    space.className = 'key space';
+    space.textContent = 'пробел';
+    map[' '] = space;
+    map['ё'] = map['е'];          // на схеме нет отдельной Ё — показываем на Е
+    last.appendChild(space);
+    container.appendChild(last);
+    return map;
+  }
+
   window.KIBER = {
     reduceMotion: reduceMotion,
     session: session,
@@ -88,6 +143,9 @@
     fmtTime: fmtTime,
     pick: pick,
     replay: replay,
-    confetti: confetti
+    confetti: confetti,
+    ruByCode: RU_BY_CODE,
+    handOf: handOf,
+    buildKeyboard: buildKeyboard
   };
 })();
