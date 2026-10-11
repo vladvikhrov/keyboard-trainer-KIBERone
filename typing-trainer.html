@@ -27,7 +27,12 @@
   <p class="lead">Печатай текст точно так, как он написан. Ошибку курсор не пропустит — найди верную букву и продолжай. Таймер запустится с первой буквы.</p>
 
   <div class="panel">
-    <div class="panel-title">Все тексты вперемешку: от коротких слов до длинных предложений</div>
+    <div class="modes" role="group" aria-label="Уровень сложности">
+      <button class="mode teal" data-level="easy" aria-pressed="true">🐢 Лёгкий</button>
+      <button class="mode yellow" data-level="medium" aria-pressed="false">🐇 Средний</button>
+      <button class="mode pink" data-level="hard" aria-pressed="false">🚀 Сложный</button>
+      <button class="mode violet" data-level="mix" aria-pressed="false">🔀 Все вперемешку</button>
+    </div>
     <div class="spacer"></div>
     <div class="clock" id="clock"><b id="time">0:30</b><span>осталось</span></div>
   </div>
@@ -97,8 +102,8 @@
 <script type="text/plain" id="defaultTexts">
 # ФАЙЛ С ТЕКСТАМИ ДЛЯ ТРЕНАЖЁРА KIBERONE
 # Правила: каждый текст отделяется ПУСТОЙ СТРОКОЙ — один абзац = один текст.
-# Заголовки "# ЛЁГКИЙ", "# СРЕДНИЙ", "# СЛОЖНЫЙ" нужны только для порядка:
-# в тренажёре все тексты показываются вперемешку одним набором.
+# Заголовки "# ЛЁГКИЙ", "# СРЕДНИЙ", "# СЛОЖНЫЙ" задают уровень сложности
+# для текстов под ними. Кнопка «Все вперемешку» берёт тексты всех уровней.
 # Любая другая строка, начинающаяся с #, — это комментарий, в тренажёр он не попадёт.
 # Дописывай свои предложения в конец нужного раздела и сохраняй файл в кодировке UTF-8.
 
