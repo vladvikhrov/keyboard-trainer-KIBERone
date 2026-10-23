@@ -88,45 +88,9 @@
     streakBox.classList.remove('hot');
   }
 
-  /* ---------- клавиатура: раскладка ЙЦУКЕН и распределение пальцев ---------- */
-  var KB_ROWS = [
-    ['й','ц','у','к','е','н','г','ш','щ','з','х','ъ'],
-    ['ф','ы','в','а','п','р','о','л','д','ж','э'],
-    ['я','ч','с','м','и','т','ь','б','ю','.']
-  ];
-  // какая рука отвечает за клавишу (для подсветки пальца)
-  // левая рука по десятипальцевому методу: й ц у к е / ф ы в а п / я ч с м и
-  var LEFT_KEYS = 'йцукефывапячсми12345ё';
-  function handOf(ch){
-    if (ch === ' ') return 'thumb';
-    return LEFT_KEYS.indexOf(ch) !== -1 ? 'left' : 'right';
-  }
-  var keyMap = {}; // символ -> элемент клавиши
-  function buildKeyboard(){
-    keyboard.innerHTML = '';
-    for (var r = 0; r < KB_ROWS.length; r++){
-      var row = document.createElement('div');
-      row.className = 'krow';
-      for (var c = 0; c < KB_ROWS[r].length; c++){
-        var ch = KB_ROWS[r][c];
-        var k = document.createElement('div');
-        k.className = 'key';
-        k.textContent = ch.toUpperCase();
-        keyMap[ch] = k;
-        row.appendChild(k);
-      }
-      keyboard.appendChild(row);
-    }
-    // ряд с пробелом
-    var last = document.createElement('div');
-    last.className = 'krow';
-    var space = document.createElement('div');
-    space.className = 'key space';
-    space.textContent = 'пробел';
-    keyMap[' '] = space;
-    last.appendChild(space);
-    keyboard.appendChild(last);
-  }
+  /* ---------- клавиатура: раскладка и руки — в common.js ---------- */
+  var handOf = K.handOf;
+  var keyMap = K.buildKeyboard(keyboard); // символ -> элемент клавиши
   var hlKey = null;
   function highlightKey(ch){
     if (hlKey){ hlKey.className = hlKey.className.replace(/ hl.*/, ''); hlKey = null; }
@@ -134,7 +98,6 @@
     if (!ch) return;
     var low = ch.toLowerCase();
     var target = keyMap[low];
-    if (low === 'ё') target = keyMap['е'];     // ё показываем на е
     if (!target) return;
     var hand = handOf(low);
     target.className = 'key' + (low === ' ' ? ' space' : '') + ' hl ' + hand;
@@ -354,7 +317,6 @@
   });
 
   /* ---------- управление ---------- */
-  buildKeyboard();
   renderRecord();
   el('kbToggle').addEventListener('click', function(){
     var on = keyboard.classList.toggle('show');
