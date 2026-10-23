@@ -17,14 +17,14 @@
      hint        — показывать клавиатуру с подсветкой ближайшей буквы
      К концу раунда буквы падают и появляются в RAMP раз быстрее. */
   var MODES = {
-    easy:   { name:'Лёгкий',  keys:'фывапролдж', fallSec:7, spawnSec:1.6, maxOnScreen:3, hint:true,
+    easy:   { name:'Лёгкий',  keys:'фывапролдж', fallSec:11, spawnSec:2.4, maxOnScreen:2, hint:true,
               about:'Только средний ряд: Ф Ы В А П Р О Л Д Ж. Внизу подсвечена клавиша для ближайшей буквы.' },
-    medium: { name:'Средний', keys:'фывапролджйцукенгшщз', fallSec:5, spawnSec:1.1, maxOnScreen:4, hint:false,
+    medium: { name:'Средний', keys:'фывапролджйцукенгшщз', fallSec:8, spawnSec:1.7, maxOnScreen:3, hint:false,
               about:'Средний и верхний ряды. Подсказки нет.' },
-    hard:   { name:'Сложный', keys:'йцукенгшщзхъфывапролджэячсмитьбюё', fallSec:3.6, spawnSec:0.75, maxOnScreen:6, hint:false,
+    hard:   { name:'Сложный', keys:'йцукенгшщзхъфывапролджэячсмитьбюё', fallSec:6, spawnSec:1.2, maxOnScreen:4, hint:false,
               about:'Все буквы, включая Ё, Ъ и Э. Подсказки нет.' }
   };
-  var ROUND_SEC = 90, LIVES = 3, RAMP = 1.6;
+  var ROUND_SEC = 90, LIVES = 3, RAMP = 1.35;
   var LETTER_PX = 58;          // размер плашки с буквой, как в styles.css
 
   var modeId = 'easy', mode = MODES[modeId];

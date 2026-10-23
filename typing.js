@@ -46,11 +46,13 @@
     return false;
   }
 
-  var LIB = [];                 // все тексты одним набором, вперемешку
+  // тексты по уровням; mix — все тексты вместе
+  var LIB = { easy: [], medium: [], hard: [], mix: [] };
+  var level = 'easy';
   var chars = [], spans = [], idx = 0;
   var correct = 0, errors = 0, wrongNow = false;
   var started = false, finished = false, timer = null, left = 30;
-  var lastPicked = -1;
+  var lastPicked = {};          // уровень -> номер последнего текста, чтобы не повторяться подряд
 
   /* ---------- всплывающие сообщения ---------- */
   var START_MSG = ['Поехали!', 'Вперёд!', 'Ну-ка, покажи класс!', 'Готовься... старт!', 'Давай, ты сможешь!'];
@@ -105,10 +107,13 @@
   }
 
   /* ---------- разбор файла с текстами ---------- */
-  /* Один абзац — один текст. Строки с # (заголовки уровней и комментарии)
-     пропускаются: все тексты идут одним набором. */
+  /* Один абзац — один текст. Заголовки «# ЛЁГКИЙ», «# СРЕДНИЙ», «# СЛОЖНЫЙ»
+     задают уровень для текстов ниже; другие строки с # — комментарии.
+     Тексты до первого заголовка попадают только в «Все вперемешку». */
+  var HEADINGS = { 'ЛЁГКИЙ': 'easy', 'ЛЕГКИЙ': 'easy', 'СРЕДНИЙ': 'medium', 'СЛОЖНЫЙ': 'hard' };
   function parseTexts(raw){
-    var out = [];
+    var out = { easy: [], medium: [], hard: [], mix: [] }, cur = null;
+    function add(buf){ var t = buf.join(' '); out.mix.push(t); if (cur) out[cur].push(t); }
     var blocks = String(raw).replace(/\r/g, '').split(/\n[ \t]*\n/);
     for (var i = 0; i < blocks.length; i++){
       var lines = blocks[i].split('\n'), buf = [];
@@ -116,34 +121,39 @@
         var t = lines[j].trim();
         if (!t) continue;
         if (t.charAt(0) === '#'){
-          if (buf.length){ out.push(buf.join(' ')); buf = []; }
+          if (buf.length){ add(buf); buf = []; }
+          var head = HEADINGS[t.replace(/^#+/, '').trim().toUpperCase()];
+          if (head) cur = head;
           continue;
         }
         buf.push(t);
       }
-      if (buf.length) out.push(buf.join(' '));
+      if (buf.length) add(buf);
     }
     return out;
   }
 
   function loadLibrary(raw, label){
     var parsed = parseTexts(raw);
-    if (!parsed.length) return false;
+    if (!parsed.mix.length) return false;
     LIB = parsed;
-    lastPicked = -1;
-    el('fileInfo').textContent = label + ' Текстов в наборе: ' + LIB.length + '.';
+    lastPicked = {};
+    el('fileInfo').textContent = label + ' Текстов: лёгких ' + LIB.easy.length +
+      ', средних ' + LIB.medium.length + ', сложных ' + LIB.hard.length + '.';
     return true;
   }
 
   loadLibrary(el('defaultTexts').textContent, 'Встроенный набор текстов.');
 
   function pickText(){
-    if (!LIB.length) return 'Список текстов пуст.';
-    if (LIB.length === 1) return LIB[0];
+    var key = LIB[level].length ? level : 'mix';   // в своём файле уровня нет — берём все тексты
+    var list = LIB[key];
+    if (!list.length) return 'Список текстов пуст.';
+    if (list.length === 1) return list[0];
     var n;
-    do { n = Math.floor(Math.random() * LIB.length); } while (n === lastPicked);
-    lastPicked = n;
-    return LIB[n];
+    do { n = Math.floor(Math.random() * list.length); } while (n === lastPicked[key]);
+    lastPicked[key] = n;
+    return list[n];
   }
 
   /* ---------- отрисовка ---------- */
@@ -329,6 +339,18 @@
   });
 
   el('again').addEventListener('click', function(){ resetAll(false); });
+
+  /* ---------- уровень сложности ---------- */
+  var levelBtns = document.querySelectorAll('[data-level]');
+  for (var li = 0; li < levelBtns.length; li++){
+    levelBtns[li].addEventListener('click', function(){
+      level = this.getAttribute('data-level');
+      for (var k = 0; k < levelBtns.length; k++)
+        levelBtns[k].setAttribute('aria-pressed', levelBtns[k] === this ? 'true' : 'false');
+      this.blur();
+      resetAll(true);
+    });
+  }
   el('newText').addEventListener('click', function(){ resetAll(true); });
   el('secs').addEventListener('click', function(){
     durIdx = (durIdx + 1) % DURATIONS.length;
