@@ -1,0 +1,445 @@
+/* ========================================================================
+   KIBERONE — тренажёры клавиатуры. Единый файл стилей для всех страниц.
+   Общие компоненты — без префикса. Различия страниц заскоуплены классами
+   body.page-typing и body.page-hotkeys (класс проставлен в <body>).
+
+   Цвет кнопки задаётся классом-модификатором:
+   .teal .pink .yellow .orange .violet .blue .ghost
+   Он работает и для .btn, и для .toggle, и для .mode / .nav-item.
+   ======================================================================== */
+
+
+/* ---------- палитра ---------- */
+:root{
+    --violet:#6C2BD9;
+    --deep:#3A0CA3;
+    --teal:#17C3B2;
+    --pink:#F72585;
+    --yellow:#FFD60A;
+    --orange:#FF8C42;
+    --blue:#4CC9F0;
+    --ink:#1B0A4A;
+    --paper:#FFFFFF;
+    --muted:#B9A7F0;
+    --soft:#6E67A0;          /* приглушённый текст на белом */
+    --lilac:#F4F0FF;         /* светлые плашки на белом */
+    --radius:26px;
+    --press:0 6px 0 rgba(0,0,0,.25);
+  }
+
+
+/* ---------- база ---------- */
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+    min-height:100vh;
+    background:
+      radial-gradient(1200px 600px at 15% -10%, rgba(108,43,217,.55), transparent 60%),
+      radial-gradient(900px 500px at 110% 110%, rgba(247,37,133,.22), transparent 60%),
+      var(--deep);
+    background-attachment:fixed;
+    color:var(--paper);
+    font-family:"Trebuchet MS","Segoe UI",Verdana,system-ui,sans-serif;
+    overflow-x:hidden;
+  }
+button{font-family:inherit;cursor:pointer;border:none}
+.spacer{flex:1 1 40px}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
+
+/* декоративные круги */
+.blob{position:fixed;border-radius:50%;filter:blur(2px);opacity:.5;z-index:0;pointer-events:none;animation:float 14s ease-in-out infinite}
+.b1{width:340px;height:340px;background:var(--violet);top:-120px;left:-100px}
+.b2{width:260px;height:260px;background:var(--pink);bottom:-90px;right:-80px;opacity:.35;animation-delay:-4s}
+.b3{width:180px;height:180px;background:var(--teal);top:38%;right:-70px;opacity:.3;animation-delay:-8s}
+.b4{width:120px;height:120px;background:var(--yellow);bottom:22%;left:-50px;opacity:.25;animation-delay:-11s}
+
+
+/* ---------- раскладка и боковое меню ---------- */
+.app{display:flex;align-items:flex-start;position:relative;z-index:1}
+.side{
+    position:sticky;top:0;align-self:stretch;
+    width:232px;flex:0 0 232px;min-height:100vh;
+    background:rgba(0,0,0,.18);
+    border-right:2px solid rgba(255,255,255,.08);
+    padding:22px 14px;display:flex;flex-direction:column;gap:6px;
+  }
+.side-brand{font-size:19px;font-weight:bold;padding:6px 10px 14px;display:flex;align-items:center;gap:8px}
+.nav-item{
+    display:flex;align-items:center;gap:10px;
+    padding:12px 14px;border-radius:16px;
+    color:#fff;text-decoration:none;font-weight:bold;font-size:15px;
+    transition:background .15s ease, transform .1s ease;
+  }
+.nav-item:hover{background:rgba(255,255,255,.10);transform:translateX(2px)}
+.nav-item:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
+.nav-item .ic{font-size:20px;width:24px;text-align:center;flex:0 0 24px}
+.nav-item.active{box-shadow:0 5px 0 rgba(0,0,0,.22)}
+.page-typing .nav-item.active{background:var(--teal);color:var(--ink)}
+.page-hotkeys .nav-item.active{background:var(--pink);color:#fff}
+.side-foot{margin-top:auto;font-size:12px;color:rgba(255,255,255,.4);padding:10px;line-height:1.5}
+
+.wrap{flex:1 1 auto;min-width:0;max-width:900px;margin:0 auto;padding:22px 16px 48px}
+
+@media (max-width:860px) {
+  .app{flex-direction:column;align-items:stretch}
+  .side{
+      position:static;width:auto;flex:none;min-height:0;
+      flex-direction:row;overflow-x:auto;gap:8px;
+      border-right:none;border-bottom:2px solid rgba(255,255,255,.08);
+      padding:12px;
+    }
+  .side-brand, .side-foot{display:none}
+  .nav-item{white-space:nowrap;padding:10px 14px}
+  .nav-item:hover{transform:none}
+}
+
+
+/* ---------- шапка ---------- */
+header{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-bottom:18px}
+.page-hotkeys header{margin-bottom:14px}
+h1{
+    font-size:clamp(24px,5vw,40px);
+    margin:0;line-height:1.1;letter-spacing:-.5px;
+    text-shadow:0 4px 0 rgba(0,0,0,.18);
+  }
+h1 .kbd{display:inline-block;transform:rotate(-6deg);transition:transform .3s ease}
+h1:hover .kbd{transform:rotate(6deg) scale(1.1)}
+.brand{
+    margin-left:auto;
+    background:linear-gradient(135deg,var(--yellow),var(--orange));color:var(--ink);
+    font-weight:bold;font-size:13px;letter-spacing:.04em;
+    padding:7px 14px;border-radius:999px;
+    box-shadow:0 5px 0 rgba(0,0,0,.2);
+  }
+.lead{margin:0 0 18px;color:var(--muted);font-size:15px;line-height:1.5;max-width:60ch}
+.lead b{color:#fff}
+
+
+/* ---------- панель с переключателями и часами ---------- */
+.panel{
+    background:rgba(255,255,255,.08);
+    border:2px solid rgba(255,255,255,.14);
+    border-radius:var(--radius);
+    padding:14px;
+    display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+    margin-bottom:16px;
+    backdrop-filter:blur(4px);
+  }
+.panel-title{font-size:14px;font-weight:bold;color:var(--muted);padding:0 6px}
+.modes{display:flex;gap:8px;flex-wrap:wrap}
+.clock{
+    display:flex;align-items:baseline;gap:6px;
+    background:var(--ink);border-radius:16px;padding:8px 16px;
+    box-shadow:inset 0 0 0 2px rgba(255,255,255,.12);
+  }
+.clock.hidden{display:none}
+.clock b{font-size:26px;font-variant-numeric:tabular-nums;color:var(--yellow)}
+.clock.low b{color:var(--pink);animation:pulse .5s ease-in-out infinite alternate}
+.clock span{font-size:13px;color:var(--muted)}
+
+
+/* ---------- кнопки ----------
+   .btn    — крупные «объёмные» кнопки действий
+   .mode   — переключатель режима (цвет включается, когда aria-pressed="true")
+   .toggle — маленькие кнопки «показать / скрыть» */
+.btn{
+    --c:var(--teal); --fg:var(--ink); --edge:#0E8C80;
+    display:inline-flex;align-items:center;gap:8px;
+    border-radius:18px;padding:13px 20px;font-size:16px;font-weight:bold;
+    background:linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,0) 55%), var(--c);
+    color:var(--fg);
+    box-shadow:0 6px 0 var(--edge), 0 10px 18px rgba(0,0,0,.18);
+    transition:transform .1s ease, box-shadow .1s ease, filter .15s ease;
+  }
+.btn:hover{transform:translateY(-2px);filter:brightness(1.07);box-shadow:0 8px 0 var(--edge), 0 14px 22px rgba(0,0,0,.22)}
+.btn:active{transform:translateY(4px);box-shadow:0 2px 0 var(--edge), 0 4px 8px rgba(0,0,0,.18)}
+
+.mode{
+    --c:var(--teal); --fg:var(--ink);
+    background:rgba(255,255,255,.12);color:#fff;
+    border:2px solid transparent;
+    border-radius:16px;padding:10px 16px;font-size:15px;font-weight:bold;
+    transition:transform .12s ease, background .2s ease, border-color .2s ease;
+  }
+.mode:hover{transform:translateY(-2px);border-color:var(--c)}
+.mode[aria-pressed="true"]{background:var(--c);color:var(--fg);box-shadow:0 5px 0 rgba(0,0,0,.22)}
+
+.toggle{
+    --c:var(--violet); --fg:#fff;
+    margin-left:auto;
+    background:var(--c);color:var(--fg);
+    border-radius:14px;padding:8px 14px;font-size:14px;font-weight:bold;
+    box-shadow:0 4px 0 rgba(0,0,0,.18);
+    transition:transform .1s ease, filter .15s ease;
+  }
+.toggle:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.toggle:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.18)}
+.toggle[aria-pressed="true"]{box-shadow:inset 0 0 0 3px rgba(255,255,255,.55), 0 4px 0 rgba(0,0,0,.18)}
+
+/* цвета-модификаторы */
+.teal  {--c:var(--teal);   --fg:var(--ink); --edge:#0E8C80}
+.pink  {--c:var(--pink);   --fg:#fff;       --edge:#B0105C}
+.yellow{--c:var(--yellow); --fg:var(--ink); --edge:#C9A500}
+.orange{--c:var(--orange); --fg:var(--ink); --edge:#C9601E}
+.violet{--c:var(--violet); --fg:#fff;       --edge:#43158F}
+.blue  {--c:var(--blue);   --fg:var(--ink); --edge:#1E95BA}
+.btn.ghost{
+    background:rgba(255,255,255,.14);color:#fff;
+    box-shadow:none;border:2px solid rgba(255,255,255,.25);
+  }
+
+.btn:focus-visible, .mode:focus-visible, .toggle:focus-visible, label.btn:focus-within{
+    outline:3px solid var(--yellow);outline-offset:3px;
+  }
+.actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:22px}
+
+
+/* ---------- белая карточка задания ---------- */
+.stage{
+    position:relative;
+    background:var(--paper);color:var(--ink);
+    border-radius:var(--radius);
+    padding:26px 22px;
+    box-shadow:0 16px 0 rgba(0,0,0,.22), 0 24px 48px rgba(0,0,0,.18);
+    min-height:230px;
+  }
+.shake{animation:shake .18s}
+
+
+/* ---------- строка рекорда сессии ---------- */
+.record{
+    margin:-4px 0 16px;font-size:14px;color:var(--muted);
+    background:rgba(255,255,255,.06);border-radius:14px;padding:11px 15px;
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+  }
+.record b{color:var(--yellow);font-variant-numeric:tabular-nums}
+
+
+/* ---------- результаты ---------- */
+.results{display:none;text-align:center}
+.results.show{animation:rise .4s ease}
+.results.burst h2{animation:burst .55s cubic-bezier(.2,1.4,.4,1)}
+.results h2{margin:0 0 4px;font-size:clamp(22px,4vw,30px);color:var(--violet)}
+.results .rank{margin:0 0 18px;color:var(--soft);font-size:15px;line-height:1.45}
+.scores{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;width:100%}
+.score{
+    flex:1 1 150px;min-width:140px;
+    background:var(--lilac);border-radius:22px;padding:18px 12px;
+    border-bottom:5px solid #E2D8FF;
+    animation:rise .45s ease both;
+  }
+.score:nth-child(2){animation-delay:.08s}
+.score:nth-child(3){animation-delay:.16s}
+.score b{display:block;font-size:clamp(34px,7vw,46px);line-height:1;color:var(--violet);font-variant-numeric:tabular-nums}
+.score span{display:block;margin-top:6px;font-size:13px;color:var(--soft)}
+.score.t b{color:var(--teal)}
+.score.p b{color:var(--pink)}
+.rec-note{margin:14px 0 0;font-weight:bold;color:var(--pink);font-size:16px;min-height:1.2em}
+
+footer{margin-top:26px;font-size:13px;color:rgba(255,255,255,.45);text-align:center}
+.pop{animation:pop .28s ease}
+
+
+/* ---------- анимации ---------- */
+@keyframes glow{
+    0%,100%{box-shadow:0 0 0 3px rgba(255,214,10,.45)}
+    50%{box-shadow:0 0 0 6px rgba(255,214,10,.18)}
+  }
+@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes burst{0%{transform:scale(.4);opacity:0}55%{transform:scale(1.18)}100%{transform:scale(1);opacity:1}}
+@keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+@keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.35)}100%{transform:scale(1)}}
+@keyframes flok{0%{background:#fff}40%{background:#DBFFF5}100%{background:#fff}}
+@keyframes pulse{from{opacity:1}to{opacity:.55}}
+@keyframes float{0%,100%{transform:translate(0,0)}50%{transform:translate(14px,-18px)}}
+
+
+/* ========================================================================
+   Страница «Скорость печати»
+   ======================================================================== */
+
+/* полоса оставшегося времени */
+.page-typing .bar{height:10px;border-radius:999px;background:rgba(0,0,0,.3);overflow:hidden;margin-bottom:16px}
+.page-typing .bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--teal),var(--blue),var(--yellow));transition:width .25s linear}
+.page-typing .bar.low i{background:linear-gradient(90deg,var(--pink),var(--orange),var(--yellow))}
+
+/* текст для набора */
+.page-typing .text{
+    font-family:"Courier New",Consolas,"DejaVu Sans Mono",monospace;
+    font-size:clamp(19px,2.6vw,25px);
+    line-height:1.85;
+    letter-spacing:.4px;
+    white-space:pre-wrap;word-break:break-word;
+    max-height:44vh;overflow-y:auto;
+    padding-right:6px;
+  }
+.page-typing .text span{border-radius:5px;padding:1px 0}
+.page-typing .text .done{color:var(--teal)}
+.page-typing .text .todo{color:#8C86A8}
+.page-typing .text .cur{background:var(--yellow);color:var(--ink);box-shadow:0 0 0 3px rgba(255,214,10,.45);border-radius:5px;animation:glow 1.3s ease-in-out infinite}
+.page-typing .text .cur.wrong{background:var(--pink);color:#fff;box-shadow:0 0 0 3px rgba(247,37,133,.35);animation:none}
+.page-typing .text .cur.space, .page-typing .text .done.space{border-bottom:3px solid currentColor}
+
+.page-typing .capture{position:absolute;opacity:0;width:1px;height:1px;left:-9999px}
+.page-typing .hint{margin-top:16px;font-size:14px;color:var(--soft);display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.page-typing .hint kbd{background:#EEE9FF;border-radius:6px;padding:2px 7px;font-family:inherit;font-weight:bold;color:var(--violet)}
+
+/* заставка «Нажми сюда» поверх карточки */
+.page-typing .tapme{
+    position:absolute;inset:0;border-radius:var(--radius);
+    background:rgba(255,255,255,.86);backdrop-filter:blur(2px);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+    color:var(--violet);font-weight:bold;font-size:18px;text-align:center;padding:20px;
+    cursor:text;
+  }
+.page-typing .tapme small{font-weight:normal;color:var(--soft);font-size:14px;max-width:36ch}
+.page-typing .tapme.hidden{display:none}
+
+/* загрузка своих текстов */
+.page-typing .filerow{margin-top:16px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:14px;color:var(--muted)}
+.page-typing label.btn{cursor:pointer}
+.page-typing input[type=file]{display:none}
+
+/* результаты */
+.page-typing .results{padding:8px 0 4px}
+.page-typing .results.show{display:block}
+.page-typing .stage.finished .text, .page-typing .stage.finished .hint{display:none}
+
+/* всплывающие сообщения: плашка внизу экрана, НЕ перекрывает набираемый текст */
+.page-typing .toast{
+    position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(14px);
+    background:var(--violet);color:#fff;font-weight:bold;font-size:16px;
+    padding:11px 22px;border-radius:999px;box-shadow:0 10px 26px rgba(0,0,0,.35);
+    opacity:0;pointer-events:none;transition:opacity .25s ease, transform .25s ease;
+    z-index:60;white-space:nowrap;max-width:92vw;overflow:hidden;text-overflow:ellipsis;
+  }
+.page-typing .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.page-typing .toast.teal{background:var(--teal);color:var(--ink)}
+.page-typing .toast.pink{background:var(--pink);color:#fff}
+.page-typing .toast.yellow{background:var(--yellow);color:var(--ink)}
+
+/* серия без ошибок */
+.page-typing .streak{margin-top:14px;font-size:14px;color:var(--soft);display:flex;align-items:center;gap:8px}
+.page-typing .streak b{color:var(--pink);font-variant-numeric:tabular-nums;font-size:16px}
+.page-typing .streak.hot b{color:var(--violet)}
+.page-typing .streak.hot::after{content:"🔥"}
+
+/* схема клавиатуры */
+.page-typing .kbwrap{margin-top:18px;border-top:2px dashed #E5DEFA;padding-top:14px}
+.page-typing .kbhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.page-typing .kbhead .kbtitle{font-size:14px;color:var(--soft);font-weight:bold}
+.page-typing .keyboard{display:none;user-select:none}
+.page-typing .keyboard.show{display:block;animation:rise .25s ease}
+.page-typing .krow{display:flex;gap:5px;justify-content:center;margin-bottom:5px}
+.page-typing .key{
+    flex:1 1 0;min-width:0;
+    background:var(--lilac);color:#5B4B8A;
+    border-radius:9px;padding:9px 2px;text-align:center;
+    font-size:clamp(11px,1.7vw,15px);font-weight:bold;
+    box-shadow:0 2px 0 #DAD0F5;transition:background .12s ease, transform .08s ease, color .12s ease;
+  }
+.page-typing .key.wide{flex:2 1 0}
+.page-typing .key.space{flex:6 1 0}
+/* подсветка нужной клавиши, цвет по руке */
+.page-typing .key.hl{transform:translateY(1px);box-shadow:0 1px 0 rgba(0,0,0,.2)}
+.page-typing .key.hl.left{background:var(--teal);color:var(--ink)}
+.page-typing .key.hl.right{background:var(--pink);color:#fff}
+.page-typing .key.hl.thumb{background:var(--yellow);color:var(--ink)}
+.page-typing .kbhint{margin-top:8px;font-size:12px;color:#8C86A8;display:flex;gap:14px;flex-wrap:wrap}
+.page-typing .kbhint span{display:inline-flex;align-items:center;gap:5px}
+.page-typing .kbdot{width:12px;height:12px;border-radius:4px;display:inline-block}
+.page-typing .kbdot.l{background:var(--teal)}
+.page-typing .kbdot.r{background:var(--pink)}
+.page-typing .kbdot.t{background:var(--yellow)}
+
+@media (max-width:520px) {
+  .page-typing .key{padding:7px 1px;border-radius:7px}
+}
+
+
+/* ========================================================================
+   Страница «Горячие клавиши»
+   ======================================================================== */
+
+/* строка рекорда: по умолчанию спокойная, с рекордом — яркая крупная плашка */
+.page-hotkeys .record{margin:-2px 0 18px;border-radius:16px;padding:12px 16px;gap:10px}
+.page-hotkeys .record .rec-cup{font-size:20px;line-height:1}
+.page-hotkeys .record .rec-empty{color:var(--muted)}
+.page-hotkeys .record.has{
+    background:linear-gradient(90deg, rgba(255,214,10,.22), rgba(247,37,133,.18));
+    border:2px solid rgba(255,214,10,.55);
+    box-shadow:0 6px 0 rgba(0,0,0,.18);
+    padding:16px 20px;gap:14px;
+  }
+.page-hotkeys .record.has .rec-cup{font-size:34px}
+.page-hotkeys .record.has .rec-label{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:bold}
+.page-hotkeys .record.has .rec-main{font-size:clamp(22px,4vw,30px);font-weight:bold;color:#fff;line-height:1}
+.page-hotkeys .record.has .rec-main b{font-size:1.15em}
+.page-hotkeys .record.has .rec-sub{margin-left:auto;background:rgba(0,0,0,.25);border-radius:999px;
+    padding:6px 14px;font-size:14px;font-weight:bold;color:#fff}
+@media (max-width:520px) {
+  .page-hotkeys .record.has .rec-sub{margin-left:0}
+}
+
+/* карточка задания */
+.page-hotkeys .stage{
+    padding:30px 22px;min-height:300px;text-align:center;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  }
+.page-hotkeys .stage.flash-ok{animation:flok .3s}
+.page-hotkeys .live{display:flex;flex-direction:column;align-items:center;gap:14px}
+.page-hotkeys .stage.finished .live{display:none}
+.page-hotkeys .task-emoji{font-size:clamp(46px,10vw,72px);line-height:1}
+.page-hotkeys .task-name{font-size:clamp(26px,5vw,38px);font-weight:bold;color:var(--violet);margin:0}
+.page-hotkeys .task-desc{font-size:15px;color:var(--soft);margin:0}
+
+/* клавиши сочетания */
+.page-hotkeys .caps{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:6px;min-height:60px}
+.page-hotkeys .caps.dim{opacity:.15;filter:grayscale(1)}
+.page-hotkeys .cap{background:var(--lilac);color:#4B3B7A;border-radius:12px;padding:12px 18px;font-size:clamp(16px,3vw,22px);
+    font-weight:bold;box-shadow:0 4px 0 #DAD0F5;min-width:52px}
+.page-hotkeys .cap.mod{background:var(--teal);color:var(--ink);box-shadow:0 4px 0 #0FA595}
+.page-hotkeys .caps .plus{font-size:22px;color:#B7ACD8;font-weight:bold}
+.page-hotkeys .caps-hidden{color:#B7ACD8;font-size:15px}
+
+.page-hotkeys .feedback{font-size:18px;font-weight:bold;min-height:26px;margin-top:4px}
+.page-hotkeys .feedback.ok{color:var(--teal)}
+.page-hotkeys .feedback.bad{color:var(--pink)}
+.page-hotkeys .counters{display:flex;gap:22px;justify-content:center;color:var(--soft);font-size:14px;flex-wrap:wrap}
+.page-hotkeys .counters b{display:block;font-size:26px;color:var(--violet);font-variant-numeric:tabular-nums;line-height:1}
+.page-hotkeys .counters .t b{color:var(--teal)}
+.page-hotkeys .counters .p b{color:var(--pink)}
+
+/* результаты */
+.page-hotkeys .results.show{display:flex;flex-direction:column;gap:6px;align-items:center;width:100%}
+.page-hotkeys .results h2{margin:0}
+.page-hotkeys .results .rank{margin:2px 0 12px}
+.page-hotkeys .score{flex:1 1 130px;min-width:120px;padding:16px 12px}
+.page-hotkeys .score b{font-size:clamp(30px,7vw,42px)}
+.page-hotkeys .rec-note{margin:12px 0 0}
+
+/* шпаргалка */
+.page-hotkeys .cheat{margin-top:22px}
+.page-hotkeys .cheat-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.page-hotkeys .cheat-head .t{font-size:14px;color:var(--muted);font-weight:bold}
+.page-hotkeys .cheat-grid{display:none;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
+.page-hotkeys .cheat-grid.show{display:grid;animation:rise .25s ease}
+.page-hotkeys .cheat-item{background:rgba(255,255,255,.07);border:2px solid transparent;border-radius:14px;padding:10px 12px;
+    display:flex;align-items:center;gap:10px;transition:border-color .15s ease, background .15s ease}
+.page-hotkeys .cheat-item:hover{background:rgba(255,255,255,.11);border-color:rgba(76,201,240,.5)}
+.page-hotkeys .cheat-item .ce{font-size:22px}
+.page-hotkeys .cheat-item .cn{font-weight:bold;font-size:14px}
+.page-hotkeys .cheat-item .ck{font-size:12px;color:var(--muted);margin-top:2px}
+.page-hotkeys .cheat-item .star{color:var(--yellow)}
+
+
+/* ---------- меньше движения, если так настроена система ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .blob, .shake, .pop, .clock.low b,
+  .results.show, .results.burst h2, .score,
+  .page-typing .text .cur, .page-typing .keyboard.show,
+  .page-hotkeys .stage.flash-ok, .page-hotkeys .cheat-grid.show{animation:none}
+  .btn:hover, .btn:active, .mode:hover, .toggle:hover, .toggle:active,
+  .nav-item:hover{transform:none}
+  h1:hover .kbd{transform:rotate(-6deg)}
+}

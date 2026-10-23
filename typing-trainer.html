@@ -4,247 +4,19 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>⌨️ Клавиатурный турнир — KIBERONE</title>
-<style>
-  :root{
-    --violet:#6C2BD9;
-    --deep:#3A0CA3;
-    --teal:#17C3B2;
-    --pink:#F72585;
-    --yellow:#FFD60A;
-    --ink:#1B0A4A;
-    --paper:#FFFFFF;
-    --muted:#B9A7F0;
-    --radius:26px;
-  }
-  *{box-sizing:border-box}
-  html,body{margin:0;padding:0}
-  body{
-    min-height:100vh;
-    background:var(--deep);
-    color:var(--paper);
-    font-family:"Trebuchet MS","Segoe UI",Verdana,system-ui,sans-serif;
-    overflow-x:hidden;
-  }
-  /* декоративные круги */
-  .blob{position:fixed;border-radius:50%;filter:blur(2px);opacity:.5;z-index:0;pointer-events:none}
-  .b1{width:340px;height:340px;background:var(--violet);top:-120px;left:-100px}
-  .b2{width:260px;height:260px;background:var(--pink);bottom:-90px;right:-80px;opacity:.35}
-  .b3{width:180px;height:180px;background:var(--teal);top:38%;right:-70px;opacity:.3}
-  .b4{width:120px;height:120px;background:var(--yellow);bottom:22%;left:-50px;opacity:.25}
-
-  .wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:22px 16px 48px}
-
-  header{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-bottom:18px}
-  h1{
-    font-size:clamp(24px,5vw,40px);
-    margin:0;line-height:1.1;letter-spacing:-.5px;
-    text-shadow:0 4px 0 rgba(0,0,0,.18);
-  }
-  h1 .kbd{display:inline-block;transform:rotate(-6deg)}
-  .brand{
-    margin-left:auto;
-    background:var(--yellow);color:var(--ink);
-    font-weight:bold;font-size:13px;
-    padding:7px 14px;border-radius:999px;
-    box-shadow:0 5px 0 rgba(0,0,0,.2);
-  }
-  .lead{margin:0 0 18px;color:var(--muted);font-size:15px;max-width:60ch}
-
-  .panel{
-    background:rgba(255,255,255,.08);
-    border:2px solid rgba(255,255,255,.14);
-    border-radius:var(--radius);
-    padding:14px;
-    display:flex;flex-wrap:wrap;gap:10px;align-items:center;
-    margin-bottom:16px;
-  }
-  .levels{display:flex;gap:8px;flex-wrap:wrap}
-  button{font-family:inherit;cursor:pointer;border:none}
-  .lvl{
-    background:rgba(255,255,255,.12);color:#fff;
-    border:2px solid transparent;
-    border-radius:16px;padding:10px 16px;font-size:15px;font-weight:bold;
-    transition:transform .12s ease, background .2s ease;
-  }
-  .lvl:hover{transform:translateY(-2px)}
-  .lvl[aria-pressed="true"]{background:var(--teal);color:var(--ink);box-shadow:0 5px 0 rgba(0,0,0,.22)}
-  .lvl.mid[aria-pressed="true"]{background:var(--yellow)}
-  .lvl.hard[aria-pressed="true"]{background:var(--pink);color:#fff}
-
-  .spacer{flex:1 1 40px}
-  .clock{
-    display:flex;align-items:baseline;gap:6px;
-    background:var(--ink);border-radius:16px;padding:8px 16px;
-    box-shadow:inset 0 0 0 2px rgba(255,255,255,.12);
-  }
-  .clock b{font-size:26px;font-variant-numeric:tabular-nums;color:var(--yellow)}
-  .clock.low b{color:var(--pink)}
-  .clock span{font-size:13px;color:var(--muted)}
-
-  .bar{height:10px;border-radius:999px;background:rgba(0,0,0,.3);overflow:hidden;margin-bottom:16px}
-  .bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--teal),var(--yellow));transition:width .25s linear}
-  .bar.low i{background:linear-gradient(90deg,var(--pink),var(--yellow))}
-
-  .stage{
-    position:relative;
-    background:var(--paper);color:var(--ink);
-    border-radius:var(--radius);
-    padding:26px 22px;
-    box-shadow:0 16px 0 rgba(0,0,0,.22);
-    min-height:230px;
-  }
-  .text{
-    font-family:"Courier New",Consolas,"DejaVu Sans Mono",monospace;
-    font-size:clamp(19px,2.6vw,25px);
-    line-height:1.85;
-    letter-spacing:.4px;
-    white-space:pre-wrap;word-break:break-word;
-    max-height:44vh;overflow-y:auto;
-    padding-right:6px;
-  }
-  .text span{border-radius:5px;padding:1px 0}
-  .text .done{color:var(--teal)}
-  .text .todo{color:#8C86A8}
-  .text .cur{background:var(--yellow);color:var(--ink);box-shadow:0 0 0 3px rgba(255,214,10,.45);border-radius:5px}
-  .text .cur.wrong{background:var(--pink);color:#fff;box-shadow:0 0 0 3px rgba(247,37,133,.35)}
-  .text .cur.space, .text .done.space{border-bottom:3px solid currentColor}
-  .shake{animation:shake .18s}
-  @keyframes shake{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
-  @media (prefers-reduced-motion: reduce){.shake{animation:none}.lvl:hover{transform:none}}
-
-  .capture{position:absolute;opacity:0;width:1px;height:1px;left:-9999px}
-  .hint{margin-top:16px;font-size:14px;color:#6E67A0;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-  .hint kbd{background:#EEE9FF;border-radius:6px;padding:2px 7px;font-family:inherit;font-weight:bold;color:var(--violet)}
-
-  .tapme{
-    position:absolute;inset:0;border-radius:var(--radius);
-    background:rgba(255,255,255,.86);backdrop-filter:blur(2px);
-    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
-    color:var(--violet);font-weight:bold;font-size:18px;text-align:center;padding:20px;
-  }
-  .tapme small{font-weight:normal;color:#6E67A0;font-size:14px;max-width:36ch}
-  .tapme.hidden{display:none}
-
-  .actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
-  .btn{
-    border-radius:18px;padding:13px 20px;font-size:16px;font-weight:bold;
-    background:var(--teal);color:var(--ink);box-shadow:0 6px 0 rgba(0,0,0,.25);
-    transition:transform .1s ease;
-  }
-  .btn:active{transform:translateY(4px);box-shadow:0 2px 0 rgba(0,0,0,.25)}
-  .btn.pink{background:var(--pink);color:#fff}
-  .btn.ghost{background:rgba(255,255,255,.14);color:#fff;box-shadow:none;border:2px solid rgba(255,255,255,.25)}
-  .btn:focus-visible,.lvl:focus-visible,label.btn:focus-within{outline:3px solid var(--yellow);outline-offset:3px}
-
-  .filerow{margin-top:14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;font-size:14px;color:var(--muted)}
-  label.btn{display:inline-block}
-  input[type=file]{display:none}
-
-  /* результаты */
-  .results{
-    display:none;
-    text-align:center;padding:8px 0 4px;
-  }
-  .results.show{display:block}
-  .stage.finished .text, .stage.finished .hint{display:none}
-  .results h2{margin:0 0 4px;font-size:clamp(22px,4vw,30px);color:var(--violet)}
-  .results .rank{margin:0 0 18px;color:#6E67A0;font-size:15px}
-  .scores{display:flex;flex-wrap:wrap;gap:14px;justify-content:center}
-  .score{
-    flex:1 1 150px;min-width:140px;
-    background:#F4F0FF;border-radius:22px;padding:18px 12px;
-  }
-  .score b{display:block;font-size:clamp(34px,7vw,46px);line-height:1;color:var(--violet);font-variant-numeric:tabular-nums}
-  .score span{display:block;margin-top:6px;font-size:13px;color:#6E67A0}
-  .score.t b{color:var(--teal)}
-  .score.p b{color:var(--pink)}
-  footer{margin-top:22px;font-size:13px;color:rgba(255,255,255,.45);text-align:center}
-
-  /* ---------- всплывающие сообщения ---------- */
-  .toast{
-    position:absolute;top:14px;left:50%;transform:translateX(-50%) translateY(-12px);
-    background:var(--violet);color:#fff;font-weight:bold;font-size:15px;
-    padding:9px 18px;border-radius:999px;box-shadow:0 8px 20px rgba(0,0,0,.25);
-    opacity:0;pointer-events:none;transition:opacity .25s ease, transform .25s ease;
-    z-index:5;white-space:nowrap;max-width:90%;overflow:hidden;text-overflow:ellipsis;
-  }
-  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-  .toast.teal{background:var(--teal);color:var(--ink)}
-  .toast.pink{background:var(--pink)}
-  .toast.yellow{background:var(--yellow);color:var(--ink)}
-
-  /* серия без ошибок */
-  .streak{
-    margin-top:14px;font-size:14px;color:#6E67A0;display:flex;align-items:center;gap:8px;
-  }
-  .streak b{color:var(--pink);font-variant-numeric:tabular-nums;font-size:16px}
-  .streak.hot b{color:var(--violet)}
-  .pop{animation:pop .28s ease}
-  @keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.35)}100%{transform:scale(1)}}
-
-  /* мягкое свечение текущей буквы */
-  .text .cur{animation:glow 1.3s ease-in-out infinite}
-  @keyframes glow{
-    0%,100%{box-shadow:0 0 0 3px rgba(255,214,10,.45)}
-    50%{box-shadow:0 0 0 6px rgba(255,214,10,.18)}
-  }
-  .text .cur.wrong{animation:none}
-
-  /* появление результатов */
-  .results.show{animation:rise .4s ease}
-  @keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-  .score{animation:rise .45s ease both}
-  .score:nth-child(2){animation-delay:.08s}
-  .score:nth-child(3){animation-delay:.16s}
-
-  /* ---------- клавиатура ---------- */
-  .kbwrap{margin-top:18px;border-top:2px dashed #E5DEFA;padding-top:14px}
-  .kbhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
-  .kbhead .kbtitle{font-size:14px;color:#6E67A0;font-weight:bold}
-  .toggle{
-    margin-left:auto;background:#EEE9FF;color:var(--violet);
-    border-radius:14px;padding:8px 14px;font-size:14px;font-weight:bold;
-    transition:background .2s ease;
-  }
-  .toggle:hover{background:#E2D8FF}
-  .keyboard{display:none;user-select:none}
-  .keyboard.show{display:block}
-  .krow{display:flex;gap:5px;justify-content:center;margin-bottom:5px}
-  .key{
-    flex:1 1 0;min-width:0;
-    background:#F4F0FF;color:#5B4B8A;
-    border-radius:9px;padding:9px 2px;text-align:center;
-    font-size:clamp(11px,1.7vw,15px);font-weight:bold;
-    box-shadow:0 2px 0 #DAD0F5;transition:background .12s ease, transform .08s ease, color .12s ease;
-  }
-  .key.wide{flex:2 1 0}
-  .key.space{flex:6 1 0}
-  /* подсветка нужной клавиши, цвет по руке */
-  .key.hl{transform:translateY(1px);box-shadow:0 1px 0 rgba(0,0,0,.2)}
-  .key.hl.left{background:var(--teal);color:var(--ink)}
-  .key.hl.right{background:var(--pink);color:#fff}
-  .key.hl.thumb{background:var(--yellow);color:var(--ink)}
-  .kbhint{margin-top:8px;font-size:12px;color:#8C86A8;display:flex;gap:14px;flex-wrap:wrap}
-  .kbhint span{display:inline-flex;align-items:center;gap:5px}
-  .kbdot{width:12px;height:12px;border-radius:4px;display:inline-block}
-  .kbdot.l{background:var(--teal)}.kbdot.r{background:var(--pink)}.kbdot.t{background:var(--yellow)}
-
-  @media (prefers-reduced-motion: reduce){
-    .text .cur{animation:none}
-    .results.show,.score{animation:none}
-    .pop{animation:none}
-  }
-  @media (max-width:520px){
-    .key{padding:7px 1px;border-radius:7px}
-  }
-
-  /* конфетти */
-  #confetti{position:fixed;inset:0;pointer-events:none;z-index:50}
-</style>
+<link rel="stylesheet" href="styles.css">
 </head>
-<body>
+<body class="page-typing">
 <canvas id="confetti"></canvas>
 <div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div>
+
+<div class="app">
+<aside class="side">
+  <div class="side-brand"><span>⌨️</span> KIBERONE</div>
+  <a class="nav-item active" href="typing-trainer.html"><span class="ic">⚡</span> Скорость печати</a>
+  <a class="nav-item" href="hotkeys.html"><span class="ic">🎹</span> Горячие клавиши</a>
+  <div class="side-foot">Тренажёры клавиатуры.<br>Работает офлайн.</div>
+</aside>
 
 <div class="wrap">
   <header>
@@ -254,19 +26,16 @@
   <p class="lead">Печатай текст точно так, как он написан. Ошибку курсор не пропустит — найди верную букву и продолжай. Таймер запустится с первой буквы.</p>
 
   <div class="panel">
-    <div class="levels" role="group" aria-label="Уровень сложности">
-      <button class="lvl easy" data-level="easy" aria-pressed="true">Лёгкий</button>
-      <button class="lvl mid" data-level="medium" aria-pressed="false">Средний</button>
-      <button class="lvl hard" data-level="hard" aria-pressed="false">Сложный</button>
-    </div>
+    <div class="panel-title">Все тексты вперемешку: от коротких слов до длинных предложений</div>
     <div class="spacer"></div>
     <div class="clock" id="clock"><b id="time">0:30</b><span>осталось</span></div>
   </div>
 
   <div class="bar" id="bar"><i id="barFill"></i></div>
 
+  <div class="record" id="recordLine"></div>
+
   <div class="stage" id="stage">
-    <div class="toast" id="toast"></div>
     <div class="text" id="text" aria-live="off"></div>
 
     <div class="streak" id="streak" hidden>Серия без ошибок: <b id="streakNum">0</b></div>
@@ -283,8 +52,8 @@
       <div class="scores">
         <div class="score"><b id="cpm">0</b><span>знаков в минуту</span></div>
         <div class="score t"><b id="acc">0%</b><span>точность</span></div>
-        <div class="score p"><b id="chars">0</b><span>верных символов</span></div>
       </div>
+      <p class="rec-note" id="recNote"></p>
     </div>
 
     <div class="tapme" id="tapme">
@@ -296,7 +65,7 @@
     <div class="kbwrap">
       <div class="kbhead">
         <span class="kbtitle">Схема клавиатуры</span>
-        <button class="toggle" id="kbToggle" aria-pressed="false">Показать подсказку</button>
+        <button class="toggle orange" id="kbToggle" aria-pressed="false">Показать подсказку</button>
       </div>
       <div class="keyboard" id="keyboard" aria-hidden="true"></div>
       <div class="kbhint" id="kbhint" hidden>
@@ -308,24 +77,27 @@
   </div>
 
   <div class="actions">
-    <button class="btn" id="again">Начать заново</button>
-    <button class="btn pink" id="newText">Новый текст</button>
-    <button class="btn ghost" id="secs">Время: 30 секунд</button>
+    <button class="btn teal" id="again">🔄 Начать заново</button>
+    <button class="btn pink" id="newText">📝 Новый текст</button>
+    <button class="btn yellow" id="secs">Время: 30 секунд</button>
   </div>
 
   <div class="filerow">
-    <label class="btn ghost" tabindex="0">Загрузить свои тексты (.txt)<input type="file" id="file" accept=".txt,text/plain"></label>
+    <label class="btn violet" tabindex="0">📂 Загрузить свои тексты (.txt)<input type="file" id="file" accept=".txt,text/plain"></label>
     <span id="fileInfo">Сейчас используется встроенный набор текстов.</span>
   </div>
 
   <footer>Работает офлайн: ни интернет, ни вход в аккаунт не нужны. Нажми «Показать подсказку», если нужна схема клавиатуры.</footer>
 </div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script type="text/plain" id="defaultTexts">
 # ФАЙЛ С ТЕКСТАМИ ДЛЯ ТРЕНАЖЁРА KIBERONE
 # Правила: каждый текст отделяется ПУСТОЙ СТРОКОЙ — один абзац = один текст.
-# Заголовки уровней: "# ЛЁГКИЙ", "# СРЕДНИЙ", "# СЛОЖНЫЙ".
-# Всё, что ниже заголовка, попадает в этот уровень, пока не встретится следующий заголовок.
+# Заголовки "# ЛЁГКИЙ", "# СРЕДНИЙ", "# СЛОЖНЫЙ" нужны только для порядка:
+# в тренажёре все тексты показываются вперемешку одним набором.
 # Любая другая строка, начинающаяся с #, — это комментарий, в тренажёр он не попадёт.
 # Дописывай свои предложения в конец нужного раздела и сохраняй файл в кодировке UTF-8.
 
@@ -370,6 +142,16 @@
 нота такт ритм песня хор бас соло дуэт марш вальс
 
 руль колесо мотор фара капот салон багаж тормоз педаль сигнал
+
+ноль один два три четыре пять шесть семь восемь девять
+
+плюс минус равно скобка точка запятая тире слэш собака решётка
+
+да нет верх низ лево право вперёд назад стоп дальше
+
+окно вкладка меню кнопка список строка поле ссылка значок панель
+
+папка диск архив копия вырезать вставить отмена повтор поиск замена
 
 # СРЕДНИЙ
 
@@ -463,6 +245,26 @@
 
 В команде каждый отвечает за свою часть проекта.
 
+Зажми Ctrl и нажми C, чтобы скопировать выделенное.
+
+Клавиша Shift включает заглавные буквы и помогает выделять текст.
+
+Enter переводит строку, а Esc отменяет текущее действие.
+
+Хороший ник не содержит личных данных и легко читается.
+
+Я сохраняю документ сочетанием Ctrl и S каждые несколько минут.
+
+Чтобы вернуть отменённое, нажми Ctrl плюс Y или Ctrl, Shift и Z.
+
+Стрелки с зажатым Ctrl перемещают курсор сразу на целое слово.
+
+Пробел — самая широкая клавиша, её нажимают большим пальцем.
+
+Браузер открывает новую вкладку сочетанием Ctrl и T.
+
+Внимательный пользователь проверяет адрес сайта перед входом.
+
 # СЛОЖНЫЙ
 
 KIBERONE — это международная кибершкола, где дети от шести до четырнадцати лет учатся создавать сайты, игры и приложения, а не просто пользоваться ими. На занятиях мы разбираем, как устроены современные технологии изнутри, и превращаем идеи в работающие проекты.
@@ -511,458 +313,21 @@ DeepSeek, ChatGPT и Claude — это большие языковые моде�
 
 Модель машинного обучения учится на примерах: ей показывают тысячи фотографий кошек, и постепенно она начинает узнавать кошку на новой картинке. Она не понимает, что такое кошка, но умеет находить знакомые признаки и делать вывод.
 
+Горячие клавиши экономят время не из-за магии, а из-за привычки: рука не тянется к мыши, взгляд не уходит с экрана, и короткое действие вроде копирования занимает доли секунды вместо нескольких движений. За рабочий день таких действий тысячи, и секунды складываются в часы.
+
+Операционная система — это главная программа компьютера: она запускает другие приложения, распределяет память, управляет файлами и принимает нажатия клавиш. Windows, macOS и Linux решают одни и те же задачи по-разному, но основные сочетания клавиш в них очень похожи.
+
+Переменная в программировании — это ящик с именем, в котором хранится значение. Программа может положить в него число, строку или список, а потом достать обратно по имени. Хорошее имя переменной сразу говорит, что внутри, и делает код понятным без лишних комментариев.
+
+Разница между копированием и вырезанием кажется мелочью, но она важна: при копировании исходный текст остаётся на месте, а при вырезании исчезает и переносится в буфер обмена. Буфер хранит только последний фрагмент, поэтому новое копирование стирает предыдущее.
+
+Слепая печать — это навык набирать текст, не глядя на клавиши, опираясь только на расположение пальцев. Осваивают его медленно и осознанно: сначала важна не скорость, а точность и правильная постановка рук, а скорость приходит сама через регулярную практику.
+
+Любая программа в конечном счёте превращается в последовательность простых команд, которые процессор выполняет одну за другой миллиарды раз в секунду. Человек пишет понятный текст на языке программирования, а специальная программа переводит его в инструкции, понятные железу.
+
 </script>
 
-<script>
-(function(){
-  "use strict";
-
-  var el = function(id){ return document.getElementById(id); };
-  var textBox = el('text'), capture = el('capture'), stage = el('stage'),
-      tapme = el('tapme'), results = el('results'), clock = el('clock'),
-      timeEl = el('time'), bar = el('bar'), barFill = el('barFill'),
-      toast = el('toast'), streakBox = el('streak'), streakNum = el('streakNum'),
-      keyboard = el('keyboard');
-
-  var streak = 0, bestStreak = 0;
-  var reduceMotion = window.matchMedia &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  var DURATIONS = [30, 60, 120, 300];
-  var DUR_LABELS = ['30 секунд', '1 минута', '2 минуты', '5 минут'];
-  var durIdx = 0;
-
-  function fmtTime(sec){
-    var m = Math.floor(sec / 60), s = sec % 60;
-    return m + ':' + (s < 10 ? '0' + s : s);
-  }
-
-  /* символы, которых нет на обычной клавиатуре: принимаем замену */
-  var ALIASES = {
-    '\u2014': ['-', '\u2013'],            // длинное тире
-    '\u2013': ['-', '\u2014'],            // среднее тире
-    '\u00AB': ['"'], '\u00BB': ['"'],     // кавычки-ёлочки
-    '\u201E': ['"'], '\u201C': ['"'], '\u201D': ['"'],
-    '\u2026': ['.'],                      // многоточие
-    '\u00A0': [' ']                       // неразрывный пробел
-  };
-  function matches(typed, expected){
-    if (typed === expected) return true;
-    var alt = ALIASES[expected];
-    if (!alt) return false;
-    for (var i = 0; i < alt.length; i++) if (alt[i] === typed) return true;
-    return false;
-  }
-
-  var LIB = { easy: [], medium: [], hard: [] };
-  var level = 'easy';
-  var chars = [], spans = [], idx = 0;
-  var correct = 0, errors = 0, wrongNow = false;
-  var started = false, finished = false, timer = null, left = 30;
-  var lastPicked = { easy: -1, medium: -1, hard: -1 };
-
-  /* ---------- всплывающие сообщения ---------- */
-  var START_MSG = ['Поехали!', 'Вперёд!', 'Ну-ка, покажи класс!', 'Готовься... старт!', 'Давай, ты сможешь!'];
-  var STREAK_MSG = {
-    10: 'Хорошо идёшь!',
-    20: 'Уже 20 без ошибок!',
-    30: 'Огонь! Так держать!',
-    50: 'Ничего себе, полсотни подряд!',
-    75: 'Ты в ударе!',
-    100: 'Сотня без единой ошибки! Космос!'
-  };
-  var toastTimer = null;
-  function showToast(text, kind){
-    if (!text) return;
-    toast.textContent = text;
-    toast.className = 'toast show' + (kind ? ' ' + kind : '');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(function(){ toast.className = 'toast' + (kind ? ' ' + kind : ''); }, 1400);
-  }
-  function pick(arr){ return arr[Math.floor(Math.random() * arr.length)]; }
-
-  function bumpStreak(){
-    streak++;
-    if (streak > bestStreak) bestStreak = streak;
-    if (streak >= 5){
-      streakBox.hidden = false;
-      streakNum.textContent = streak;
-      streakBox.classList.toggle('hot', streak >= 30);
-      if (!reduceMotion){
-        streakNum.classList.remove('pop'); void streakNum.offsetWidth; streakNum.classList.add('pop');
-      }
-    }
-    if (STREAK_MSG[streak]) showToast(STREAK_MSG[streak], 'teal');
-  }
-  function resetStreak(){
-    streak = 0;
-    streakBox.hidden = true;
-    streakBox.classList.remove('hot');
-  }
-
-  /* ---------- клавиатура: раскладка ЙЦУКЕН и распределение пальцев ---------- */
-  var KB_ROWS = [
-    ['й','ц','у','к','е','н','г','ш','щ','з','х','ъ'],
-    ['ф','ы','в','а','п','р','о','л','д','ж','э'],
-    ['я','ч','с','м','и','т','ь','б','ю','.']
-  ];
-  // какая рука отвечает за клавишу (для подсветки пальца)
-  // левая рука по десятипальцевому методу: й ц у к е / ф ы в а п / я ч с м и
-  var LEFT_KEYS = 'йцукефывапячсми12345ё';
-  function handOf(ch){
-    if (ch === ' ') return 'thumb';
-    return LEFT_KEYS.indexOf(ch) !== -1 ? 'left' : 'right';
-  }
-  var keyMap = {}; // символ -> элемент клавиши
-  function buildKeyboard(){
-    keyboard.innerHTML = '';
-    for (var r = 0; r < KB_ROWS.length; r++){
-      var row = document.createElement('div');
-      row.className = 'krow';
-      for (var c = 0; c < KB_ROWS[r].length; c++){
-        var ch = KB_ROWS[r][c];
-        var k = document.createElement('div');
-        k.className = 'key';
-        k.textContent = ch.toUpperCase();
-        keyMap[ch] = k;
-        row.appendChild(k);
-      }
-      keyboard.appendChild(row);
-    }
-    // ряд с пробелом
-    var last = document.createElement('div');
-    last.className = 'krow';
-    var space = document.createElement('div');
-    space.className = 'key space';
-    space.textContent = 'пробел';
-    keyMap[' '] = space;
-    last.appendChild(space);
-    keyboard.appendChild(last);
-  }
-  var hlKey = null;
-  function highlightKey(ch){
-    if (hlKey){ hlKey.className = hlKey.className.replace(/ hl.*/, ''); hlKey = null; }
-    if (keyboard.className.indexOf('show') === -1) return;
-    if (!ch) return;
-    var low = ch.toLowerCase();
-    var target = keyMap[low];
-    if (low === 'ё') target = keyMap['е'];     // ё показываем на е
-    if (!target) return;
-    var hand = handOf(low);
-    target.className = 'key' + (low === ' ' ? ' space' : '') + ' hl ' + hand;
-    hlKey = target;
-  }
-
-  /* ---------- конфетти ---------- */
-  function confetti(){
-    if (reduceMotion) return;
-    var cv = el('confetti'), ctx = cv.getContext('2d');
-    cv.width = innerWidth; cv.height = innerHeight;
-    var colors = ['#6C2BD9','#17C3B2','#F72585','#FFD60A','#fff'];
-    var parts = [];
-    for (var i = 0; i < 140; i++){
-      parts.push({
-        x: Math.random() * cv.width,
-        y: -20 - Math.random() * cv.height * 0.4,
-        s: 6 + Math.random() * 7,
-        vy: 2 + Math.random() * 4,
-        vx: -2 + Math.random() * 4,
-        rot: Math.random() * 6.28,
-        vr: -0.2 + Math.random() * 0.4,
-        col: colors[i % colors.length]
-      });
-    }
-    var frames = 0;
-    (function anim(){
-      ctx.clearRect(0, 0, cv.width, cv.height);
-      for (var i = 0; i < parts.length; i++){
-        var p = parts[i];
-        p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.vy += 0.04;
-        ctx.save();
-        ctx.translate(p.x, p.y); ctx.rotate(p.rot);
-        ctx.fillStyle = p.col;
-        ctx.fillRect(-p.s / 2, -p.s / 2, p.s, p.s * 0.6);
-        ctx.restore();
-      }
-      frames++;
-      if (frames < 160) requestAnimationFrame(anim);
-      else ctx.clearRect(0, 0, cv.width, cv.height);
-    })();
-  }
-
-  /* ---------- разбор файла с текстами ---------- */
-  function parseTexts(raw){
-    var out = { easy: [], medium: [], hard: [] };
-    var cur = 'easy';
-    var blocks = String(raw).replace(/\r/g, '').split(/\n[ \t]*\n/);
-    for (var i = 0; i < blocks.length; i++){
-      var lines = blocks[i].split('\n'), buf = [];
-      for (var j = 0; j < lines.length; j++){
-        var t = lines[j].trim();
-        if (!t) continue;
-        if (t.charAt(0) === '#'){
-          if (buf.length){ out[cur].push(buf.join(' ')); buf = []; }
-          var name = t.replace(/#/g, '').trim().toLowerCase();
-          if (name.indexOf('лёг') === 0 || name.indexOf('лег') === 0 || name.indexOf('easy') === 0) cur = 'easy';
-          else if (name.indexOf('сред') === 0 || name.indexOf('medium') === 0) cur = 'medium';
-          else if (name.indexOf('слож') === 0 || name.indexOf('hard') === 0) cur = 'hard';
-          // остальные строки с # — обычные комментарии, их пропускаем
-          continue;
-        }
-        buf.push(t);
-      }
-      if (buf.length) out[cur].push(buf.join(' '));
-    }
-    return out;
-  }
-
-  function loadLibrary(raw, label){
-    var parsed = parseTexts(raw);
-    var total = parsed.easy.length + parsed.medium.length + parsed.hard.length;
-    if (!total) return false;
-    if (!parsed.easy.length) parsed.easy = parsed.medium.length ? parsed.medium.slice() : parsed.hard.slice();
-    if (!parsed.medium.length) parsed.medium = parsed.easy.slice();
-    if (!parsed.hard.length) parsed.hard = parsed.medium.slice();
-    LIB = parsed;
-    lastPicked = { easy: -1, medium: -1, hard: -1 };
-    el('fileInfo').textContent = label + ' Текстов: лёгких ' + LIB.easy.length +
-      ', средних ' + LIB.medium.length + ', сложных ' + LIB.hard.length + '.';
-    return true;
-  }
-
-  loadLibrary(el('defaultTexts').textContent, 'Встроенный набор текстов.');
-
-  function pickText(){
-    var list = LIB[level];
-    if (!list || !list.length) return 'Список текстов пуст.';
-    if (list.length === 1) return list[0];
-    var n;
-    do { n = Math.floor(Math.random() * list.length); } while (n === lastPicked[level]);
-    lastPicked[level] = n;
-    return list[n];
-  }
-
-  /* ---------- отрисовка ---------- */
-  function renderText(str){
-    chars = String(str).split('');
-    spans = [];
-    var frag = document.createDocumentFragment();
-    for (var i = 0; i < chars.length; i++){
-      var s = document.createElement('span');
-      s.textContent = chars[i];
-      s.className = 'todo' + (chars[i] === ' ' ? ' space' : '');
-      frag.appendChild(s);
-      spans.push(s);
-    }
-    textBox.innerHTML = '';
-    textBox.appendChild(frag);
-    idx = 0; wrongNow = false;
-    textBox.scrollTop = 0;
-    markCurrent();
-  }
-
-  function markCurrent(){
-    if (idx >= spans.length){ highlightKey(null); return; }
-    var s = spans[idx];
-    s.className = 'cur' + (chars[idx] === ' ' ? ' space' : '') + (wrongNow ? ' wrong' : '');
-    var top = s.offsetTop - textBox.offsetTop, h = textBox.clientHeight;
-    if (top - textBox.scrollTop > h - 70 || top < textBox.scrollTop){
-      textBox.scrollTop = Math.max(0, top - h / 2);
-    }
-    highlightKey(chars[idx]);
-  }
-
-  /* ---------- игра ---------- */
-  function nextText(){ renderText(pickText()); }
-
-  function resetAll(newText){
-    clearInterval(timer); timer = null;
-    started = false; finished = false;
-    correct = 0; errors = 0;
-    resetStreak();
-    left = DURATIONS[durIdx];
-    timeEl.textContent = fmtTime(left);
-    clock.classList.remove('low'); bar.classList.remove('low');
-    barFill.style.width = '100%';
-    stage.classList.remove('finished');
-    results.classList.remove('show');
-    if (newText) nextText(); else renderText(chars.join(''));
-    focusInput();
-  }
-
-  function startTimer(){
-    started = true;
-    showToast(pick(START_MSG), 'yellow');
-    timer = setInterval(function(){
-      left--;
-      if (left < 0) left = 0;
-      timeEl.textContent = fmtTime(left);
-      barFill.style.width = (left / DURATIONS[durIdx] * 100) + '%';
-      if (left <= 5){ clock.classList.add('low'); bar.classList.add('low'); }
-      if (left <= 0) finish();
-    }, 1000);
-  }
-
-  function handleChar(ch){
-    if (finished) return;
-    if (idx >= chars.length) nextText();
-    if (!started) startTimer();
-
-    var expected = chars[idx];
-    if (matches(ch, expected)){
-      correct++;
-      bumpStreak();
-      spans[idx].className = 'done' + (expected === ' ' ? ' space' : '');
-      idx++;
-      wrongNow = false;
-      if (idx >= chars.length){ nextText(); }   // текст закончился — берём новый, таймер идёт дальше
-      else markCurrent();
-    } else {
-      errors++;
-      if (streak >= 15) showToast('Ничего, серия была отличная!', 'pink');
-      resetStreak();
-      wrongNow = true;
-      markCurrent();
-      if (!reduceMotion){
-        textBox.classList.remove('shake');
-        void textBox.offsetWidth;
-        textBox.classList.add('shake');
-      }
-    }
-  }
-
-  function finish(){
-    clearInterval(timer); timer = null;
-    finished = true;
-    var minutes = DURATIONS[durIdx] / 60;
-    var cpm = Math.round(correct / minutes);
-    var total = correct + errors;
-    var acc = total ? Math.round(correct / total * 100) : 100;
-
-    el('cpm').textContent = cpm;
-    el('acc').textContent = acc + '%';
-    el('chars').textContent = correct;
-
-    var rank;
-    if (cpm < 60) rank = 'Старт взят! Держи ритм и не смотри на клавиши.';
-    else if (cpm < 120) rank = 'Уверенный набор. Следующая цель — 150 знаков в минуту.';
-    else if (cpm < 180) rank = 'Отличная скорость! Ты печатаешь быстрее большинства ребят.';
-    else if (cpm < 250) rank = 'Мастер клавиатуры. Пальцы работают как у разработчика.';
-    else rank = 'Легенда кибершколы! Такой скорости можно позавидовать.';
-    if (acc >= 98) rank += ' И почти без ошибок — блестящая точность!';
-    else if (acc < 90) rank += ' Точность пока проседает — попробуй печатать чуть медленнее и ровнее.';
-    if (bestStreak >= 20) rank += ' Лучшая серия без ошибок: ' + bestStreak + ' знаков подряд.';
-
-    el('rank').textContent = rank;
-    // заголовок зависит от результата
-    if (acc >= 90 && cpm >= 100) el('resTitle').textContent = 'Отличный результат!';
-    else if (acc >= 95) el('resTitle').textContent = 'Очень аккуратно!';
-    else el('resTitle').textContent = 'Время вышло!';
-
-    stage.classList.add('finished');
-    results.classList.add('show');
-    tapme.classList.add('hidden');
-    highlightKey(null);
-
-    // конфетти за хороший результат
-    if (acc >= 90 && cpm >= 100) confetti();
-  }
-
-  /* ---------- ввод ---------- */
-  function focusInput(){
-    if (finished) return;
-    capture.focus({ preventScroll: true });
-  }
-
-  capture.addEventListener('focus', function(){ tapme.classList.add('hidden'); });
-  capture.addEventListener('blur', function(){ if (!finished) tapme.classList.remove('hidden'); });
-  stage.addEventListener('mousedown', function(e){
-    if (finished) return;
-    e.preventDefault(); focusInput();
-  });
-  stage.addEventListener('touchstart', function(){ focusInput(); }, { passive: true });
-
-  capture.addEventListener('keydown', function(e){
-    if (e.ctrlKey || e.metaKey || e.altKey) return;
-    if (e.key === 'Backspace' || e.key === 'Tab'){ e.preventDefault(); return; }
-    if (e.key === 'Enter'){ e.preventDefault(); handleChar(' '); return; }
-    if (e.key && e.key.length === 1){
-      e.preventDefault();
-      handleChar(e.key);
-    }
-  });
-  // для экранных клавиатур на планшетах и телефонах
-  capture.addEventListener('input', function(){
-    var v = capture.value;
-    capture.value = '';
-    for (var i = 0; i < v.length; i++) handleChar(v.charAt(i));
-  });
-
-  /* ---------- управление ---------- */
-  var lvlButtons = document.querySelectorAll('.lvl');
-  for (var i = 0; i < lvlButtons.length; i++){
-    lvlButtons[i].addEventListener('click', function(){
-      level = this.getAttribute('data-level');
-      for (var k = 0; k < lvlButtons.length; k++){
-        lvlButtons[k].setAttribute('aria-pressed', lvlButtons[k] === this ? 'true' : 'false');
-      }
-      resetAll(true);
-    });
-  }
-
-  buildKeyboard();
-  el('kbToggle').addEventListener('click', function(){
-    var on = keyboard.classList.toggle('show');
-    keyboard.setAttribute('aria-hidden', on ? 'false' : 'true');
-    this.setAttribute('aria-pressed', on ? 'true' : 'false');
-    this.textContent = on ? 'Скрыть подсказку' : 'Показать подсказку';
-    el('kbhint').hidden = !on;
-    if (on) highlightKey(chars[idx]);
-    focusInput();
-  });
-
-  el('again').addEventListener('click', function(){ resetAll(false); });
-  el('newText').addEventListener('click', function(){ resetAll(true); });
-  el('secs').addEventListener('click', function(){
-    durIdx = (durIdx + 1) % DURATIONS.length;
-    this.textContent = 'Время: ' + DUR_LABELS[durIdx];
-    resetAll(false);
-  });
-
-  el('file').addEventListener('change', function(){
-    var f = this.files && this.files[0];
-    if (!f) return;
-    var reader = new FileReader();
-    reader.onload = function(){
-      var ok = loadLibrary(reader.result, 'Загружен файл «' + f.name + '».');
-      if (!ok){ el('fileInfo').textContent = 'В файле не нашлось текстов. Проверь, что абзацы разделены пустой строкой.'; return; }
-      resetAll(true);
-    };
-    reader.readAsText(f, 'utf-8');
-  });
-
-  document.addEventListener('keydown', function(e){
-    if (document.activeElement !== capture && e.key && e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey && !finished){
-      focusInput();
-    }
-  });
-
-  resetAll(true);
-
-  /* Если рядом с html лежит texts.txt и страница открыта с сайта (GitHub Pages,
-     локальный сервер), тексты берутся из него автоматически.
-     При открытии файла напрямую с диска (file://) браузер это запрещает —
-     тогда работает встроенный набор, а свой файл можно подключить кнопкой. */
-  try {
-    fetch('texts.txt', { cache: 'no-store' })
-      .then(function(r){ return r.ok ? r.text() : null; })
-      .then(function(t){
-        if (!t || !t.trim()) return;
-        if (loadLibrary(t, 'Тексты взяты из файла texts.txt рядом со страницей.') && !started) resetAll(true);
-      })
-      .catch(function(){ /* офлайн-режим, остаётся встроенный набор */ });
-  } catch (e) {}
-})();
-</script>
+<script src="common.js"></script>
+<script src="typing.js"></script>
 </body>
 </html>
