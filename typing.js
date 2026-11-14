@@ -13,6 +13,12 @@
 
   var streak = 0, bestStreak = 0;
 
+  /* защита от стучания: на время предупреждения таймер стоит */
+  var guard = K.mashGuard({
+    onTrip: function(){ clearInterval(timer); timer = null; resetStreak(); },
+    onRelease: function(){ if (started && !finished) runTimer(); focusInput(); }
+  });
+
   function renderRecord(){
     var line = el('recordLine');
     if (!line) return;
@@ -193,6 +199,7 @@
     clearInterval(timer); timer = null;
     started = false; finished = false;
     correct = 0; errors = 0;
+    guard.reset();
     resetStreak();
     left = DURATIONS[durIdx];
     timeEl.textContent = fmtTime(left);
@@ -207,6 +214,10 @@
   function startTimer(){
     started = true;
     showToast(pick(START_MSG), 'yellow');
+    runTimer();
+  }
+  function runTimer(){
+    clearInterval(timer);
     timer = setInterval(function(){
       left--;
       if (left < 0) left = 0;
@@ -218,13 +229,14 @@
   }
 
   function handleChar(ch){
-    if (finished) return;
+    if (finished || guard.active()) return;
     if (idx >= chars.length) nextText();
     if (!started) startTimer();
 
     var expected = chars[idx];
     if (matches(ch, expected)){
       correct++;
+      guard.right();
       bumpStreak();
       spans[idx].className = 'done' + (expected === ' ' ? ' space' : '');
       idx++;
@@ -238,6 +250,7 @@
       wrongNow = true;
       markCurrent();
       K.replay(textBox, 'shake');
+      guard.wrong();
     }
   }
 
@@ -261,6 +274,7 @@
     if (acc >= 98) rank += ' И почти без ошибок — блестящая точность!';
     else if (acc < 90) rank += ' Точность пока проседает — попробуй печатать чуть медленнее и ровнее.';
     if (bestStreak >= 20) rank += ' Лучшая серия без ошибок: ' + bestStreak + ' знаков подряд.';
+    if (guard.trips) rank += ' ✋ Остановок за стучание по клавишам: ' + guard.trips + '. Без них результат будет честнее!';
 
     el('rank').textContent = rank;
     // заголовок зависит от результата

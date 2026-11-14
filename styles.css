@@ -535,3 +535,233 @@ footer{margin-top:26px;font-size:13px;color:rgba(255,255,255,.45);text-align:cen
   .nav-item:hover{transform:none}
   h1:hover .kbd{transform:rotate(-6deg)}
 }
+
+
+/* ========================================================================
+   Защита от «стучания» по клавишам: окно «Стоп!» (common.js → mashGuard)
+   ======================================================================== */
+.mash{
+    position:fixed;inset:0;z-index:80;display:none;
+    align-items:center;justify-content:center;padding:16px;
+    background:rgba(20,6,50,.72);backdrop-filter:blur(3px);
+  }
+.mash.show{display:flex}
+.mash-card{
+    background:var(--paper);color:var(--ink);text-align:center;
+    border-radius:var(--radius);padding:28px 26px 26px;max-width:460px;width:100%;
+    box-shadow:0 14px 0 rgba(0,0,0,.25), 0 24px 48px rgba(0,0,0,.3);
+    border-top:10px solid var(--pink);
+    animation:burst .45s cubic-bezier(.2,1.4,.4,1);
+  }
+.mash-ic{font-size:64px;line-height:1;animation:wave .6s ease-in-out 2}
+.mash h2{margin:10px 0 8px;color:var(--pink);font-size:clamp(22px,4vw,28px)}
+.mash-why{margin:0 0 8px;font-size:17px;font-weight:bold;color:var(--ink);line-height:1.4}
+.mash-tip{margin:0 0 18px;font-size:15px;color:var(--soft);line-height:1.45}
+.mash-go:disabled{filter:grayscale(.7);opacity:.6;cursor:default;transform:none}
+@keyframes wave{0%,100%{transform:rotate(0)}30%{transform:rotate(-14deg)}70%{transform:rotate(14deg)}}
+
+
+/* ========================================================================
+   Новогоднее оформление (common.js → NEW_YEAR = true ставит body.newyear)
+   ======================================================================== */
+.newyear{
+    --deep:#0B1D45;
+    background:
+      radial-gradient(1100px 600px at 12% -10%, rgba(31,111,235,.45), transparent 60%),
+      radial-gradient(900px 520px at 110% 110%, rgba(214,40,57,.28), transparent 60%),
+      radial-gradient(700px 400px at 60% 50%, rgba(23,195,178,.10), transparent 70%),
+      var(--deep);
+    background-attachment:fixed;
+  }
+#snow{position:fixed;inset:0;pointer-events:none;z-index:0}
+.newyear .b1{background:#1F6FEB}
+.newyear .b2{background:#D62839}
+.newyear .b3{background:#2DB36F}
+.newyear .b4{background:#FFD60A}
+
+/* гирлянда по верху экрана */
+.garland{
+    position:fixed;top:0;left:0;right:0;height:26px;z-index:40;pointer-events:none;
+    display:flex;justify-content:space-between;overflow:hidden;padding:0 6px;
+    background:radial-gradient(ellipse at 50% -40%, rgba(0,0,0,.35) 0 2px, transparent 3px) 0 0/46px 30px;
+  }
+.garland::before{content:"";position:absolute;left:0;right:0;top:4px;height:2px;background:rgba(255,255,255,.25)}
+.bulb{position:relative;top:7px;width:11px;height:16px;border-radius:50% 50% 50% 50% / 40% 40% 60% 60%;flex:0 0 11px;animation:twinkle 1.6s ease-in-out infinite}
+.bulb.c0{background:#FF3B3B;color:#FF3B3B}
+.bulb.c1{background:#FFD60A;color:#FFD60A;animation-delay:-.4s}
+.bulb.c2{background:#2DD881;color:#2DD881;animation-delay:-.8s}
+.bulb.c3{background:#4CC9F0;color:#4CC9F0;animation-delay:-1.2s}
+@keyframes twinkle{0%,100%{opacity:1;box-shadow:0 0 10px 2px currentColor}50%{opacity:.35;box-shadow:none}}
+
+.newyear .wrap{padding-top:34px}
+.newyear .side{padding-top:34px;background:rgba(0,0,0,.22)}
+.newyear .side-brand span{display:none}
+.newyear .side-brand::before{content:"🎄"}
+.newyear .brand{background:linear-gradient(135deg,#FF4D5E,#D62839);color:#fff}
+.newyear .brand::before{content:"🎅 "}
+.newyear .brand::after{content:" · С Новым годом!"}
+.newyear h1{position:relative}
+/* «снежная шапка» на белых карточках */
+.newyear .stage{border-top:8px solid #E8F4FF}
+.newyear .stage::before{
+    content:"";position:absolute;left:18px;right:18px;top:-14px;height:14px;z-index:3;pointer-events:none;
+    background:radial-gradient(circle at 10px 14px, #fff 9px, transparent 10px) 0 0/26px 14px repeat-x;
+  }
+.newyear .side-foot::before{content:"❄️ ";}
+
+/* пункт меню «Новогодние сани»: всегда светится праздничными цветами */
+.nav-item.festive{
+    position:relative;
+    background:linear-gradient(90deg,#D62839,#2DB36F,#FFD60A,#D62839);
+    background-size:300% 100%;
+    color:#fff;text-shadow:0 1px 0 rgba(0,0,0,.35);
+    box-shadow:0 0 0 2px rgba(255,255,255,.35), 0 0 18px rgba(255,214,10,.45);
+    animation:festive 5s linear infinite, festglow 1.8s ease-in-out infinite alternate;
+  }
+.nav-item.festive:hover{background-size:300% 100%;filter:brightness(1.1)}
+.nav-item.festive.active{box-shadow:0 0 0 3px #fff, 0 0 26px rgba(255,214,10,.7), 0 5px 0 rgba(0,0,0,.22)}
+.new-badge{
+    margin-left:auto;font-style:normal;font-size:10px;letter-spacing:.06em;
+    background:#fff;color:#D62839;border-radius:999px;padding:2px 7px;
+    animation:pop 1.6s ease-in-out infinite;
+  }
+@keyframes festive{from{background-position:0 0}to{background-position:300% 0}}
+@keyframes festglow{from{box-shadow:0 0 0 2px rgba(255,255,255,.35), 0 0 10px rgba(255,214,10,.3)}to{box-shadow:0 0 0 2px rgba(255,255,255,.6), 0 0 24px rgba(255,214,10,.75)}}
+
+
+/* ========================================================================
+   Страница «Новогодние сани» (игра)
+   ======================================================================== */
+.page-newyear .howto{margin:0 0 14px;background:rgba(255,255,255,.06);border-radius:14px;color:var(--muted);font-size:15px}
+.page-newyear .howto summary{cursor:pointer;padding:10px 15px;font-weight:bold;color:#fff;list-style:none;user-select:none}
+.page-newyear .howto summary::-webkit-details-marker{display:none}
+.page-newyear .howto summary::after{content:" ▾";color:var(--muted)}
+.page-newyear .howto[open] summary::after{content:" ▴"}
+.page-newyear .howto ul{margin:0;padding:0 18px 12px 36px;line-height:1.55}
+.page-newyear .howto b{color:#fff}
+
+.page-newyear .panel{padding:10px 12px;margin-bottom:12px}
+.page-newyear .hud{display:flex;align-items:center;gap:10px;margin-left:auto;flex-wrap:wrap}
+.page-newyear .stats{display:flex;gap:16px;font-size:12px;color:var(--muted);text-align:center}
+.page-newyear .stats b{display:block;font-size:22px;line-height:1;font-variant-numeric:tabular-nums}
+.page-newyear .stats .t b{color:var(--teal)}
+.page-newyear .stats .p b{color:var(--yellow)}
+.page-newyear .lives{display:flex;gap:2px;font-size:20px;line-height:1}
+.page-newyear .lives span{transition:opacity .2s ease, filter .2s ease}
+.page-newyear .lives span.lost{opacity:.2;filter:grayscale(1)}
+.page-newyear .toggle{margin-left:0;font-size:18px;padding:8px 12px}
+.page-newyear .toggle:disabled{opacity:.45;cursor:default;filter:none;transform:none}
+.page-newyear .clock{padding:8px 14px}
+.page-newyear .clock span{display:none}
+.page-newyear .record{margin:0 0 12px;padding:8px 14px}
+
+.page-newyear .stage{padding:0;overflow:visible;min-height:0}
+.page-newyear .field{
+    position:relative;overflow:hidden;border-radius:var(--radius) var(--radius) 0 0;
+    height:clamp(210px, calc(100vh - 490px), 460px);
+    background:linear-gradient(180deg,#0F2A5F 0%,#24508F 60%,#9CC7F0 88%,#F2F8FF 88%,#FFFFFF 100%);
+  }
+.page-newyear .lanes{position:absolute;inset:0;display:flex;pointer-events:none}
+.page-newyear .lane{flex:1 1 0;border-right:1px dashed rgba(255,255,255,.10);transition:background .2s ease}
+.page-newyear .lane:last-child{border-right:none}
+.page-newyear .lane.target{background:linear-gradient(180deg,transparent 40%,rgba(255,214,10,.22))}
+.page-newyear .lane.here{background:linear-gradient(180deg,transparent 60%,rgba(45,216,129,.25))}
+.page-newyear .lane.here.target{background:linear-gradient(180deg,transparent 30%,rgba(45,216,129,.45))}
+
+.page-newyear .sled{
+    position:absolute;bottom:4px;height:64px;width:80px;margin-left:-40px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:54px;line-height:1;transition:left .22s ease;z-index:1;
+    filter:drop-shadow(0 4px 0 rgba(0,0,0,.18));
+  }
+.page-newyear .sled-body{display:inline-block;transform:scaleX(-1)}
+
+.page-newyear .gift{
+    position:absolute;top:0;width:54px;height:54px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:40px;line-height:1;will-change:transform;
+    filter:drop-shadow(0 3px 2px rgba(0,0,0,.3));
+  }
+.page-newyear .gift b{
+    position:absolute;right:-12px;top:-6px;font-size:13px;
+    background:var(--yellow);color:var(--ink);border-radius:999px;padding:2px 6px;
+  }
+.page-newyear .gift.hit{animation:gifthit .4s ease forwards}
+.page-newyear .gift.miss{animation:miss .45s ease forwards;filter:grayscale(1)}
+.page-newyear .plus{
+    position:absolute;bottom:76px;transform:translateX(-50%);
+    font-weight:bold;font-size:22px;pointer-events:none;
+    animation:floatup .9s ease forwards;
+  }
+.page-newyear .plus.ok{color:#2DD881;text-shadow:0 2px 0 rgba(0,0,0,.3)}
+.page-newyear .plus.bad{color:#FF6B7A;text-shadow:0 2px 0 rgba(0,0,0,.3)}
+
+/* строка со словами под полем */
+.page-newyear .wordbar{
+    display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:stretch;
+    padding:14px;border-top:3px dashed #E5DEFA;
+  }
+.page-newyear .word{
+    display:flex;align-items:center;gap:10px;justify-content:center;flex-wrap:wrap;
+    background:var(--lilac);border-radius:18px;padding:12px 14px;
+    border-bottom:5px solid #DAD0F5;transition:opacity .15s ease, background .15s ease;
+    min-height:68px;
+  }
+.page-newyear .word .arrow{font-size:24px}
+.page-newyear .word .w{
+    font-family:"Courier New",Consolas,"DejaVu Sans Mono",monospace;
+    font-size:clamp(20px,3.2vw,30px);font-weight:bold;letter-spacing:2px;color:#5B4B8A;
+  }
+.page-newyear .word .w i{font-style:normal;border-radius:5px;padding:0 1px}
+.page-newyear .word .w i.ok{color:var(--teal)}
+.page-newyear .word .w i.cur{background:var(--yellow);color:var(--ink)}
+.page-newyear .word.tier1{background:#E6FBF3;border-bottom-color:#B8EED8}
+.page-newyear .word.tier2{background:#FFF6D6;border-bottom-color:#F3DF94}
+.page-newyear .word.tier3{background:#FFE3E7;border-bottom-color:#F6B3BD}
+.page-newyear .word.dim{opacity:.35}
+.page-newyear .word.blocked{opacity:.35;background:#EEE;border-bottom-color:#DDD}
+.page-newyear .word.blocked .w{font-family:inherit;font-size:16px;letter-spacing:0;color:#888}
+.page-newyear .typed{
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    min-width:120px;padding:6px 10px;color:var(--soft);
+  }
+.page-newyear .typed-label{font-size:12px}
+.page-newyear .typed b{font-family:"Courier New",Consolas,monospace;font-size:24px;color:var(--violet);letter-spacing:2px}
+.page-newyear .wordbar.shake{animation:shake .18s}
+
+.page-newyear .overlay{
+    position:absolute;inset:0;z-index:2;
+    background:rgba(255,255,255,.92);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;
+    color:var(--violet);font-weight:bold;font-size:20px;text-align:center;padding:16px;cursor:pointer;
+  }
+.page-newyear .overlay.hidden{display:none}
+.page-newyear .overlay small{font-weight:normal;color:var(--soft);font-size:14px;max-width:46ch;line-height:1.45}
+.page-newyear .overlay .big{font-size:56px;line-height:1;color:#D62839}
+.page-newyear .overlay .btn[hidden]{display:none}
+
+.page-newyear .results{padding:22px}
+.page-newyear .results.show{display:block}
+.page-newyear .results h2{color:#D62839}
+.page-newyear .results .actions{justify-content:center;margin-top:16px}
+.page-newyear .score{flex:1 1 120px;min-width:110px}
+.page-newyear .stage.finished .field, .page-newyear .stage.finished .wordbar{display:none}
+.page-newyear .nav-item.festive.active{color:#fff}
+
+@media (max-width:640px) {
+  .page-newyear .wordbar{grid-template-columns:1fr 1fr}
+  .page-newyear .typed{grid-column:1 / -1;order:3}
+}
+@media (max-width:860px) {
+  .page-newyear .field{height:clamp(210px, calc(100vh - 540px), 420px)}
+}
+
+@keyframes gifthit{to{transform:var(--at) scale(.3) translateY(60px);opacity:0}}
+@keyframes floatup{from{opacity:1;margin-bottom:0}to{opacity:0;margin-bottom:50px}}
+
+@media (prefers-reduced-motion: reduce) {
+  .bulb, .nav-item.festive, .new-badge, .mash-card, .mash-ic, .page-newyear .plus,
+  .page-newyear .wordbar.shake{animation:none}
+  .page-newyear .gift.hit, .page-newyear .gift.miss{animation:none;opacity:0}
+  .page-newyear .sled{transition:none}
+}

@@ -119,8 +119,15 @@
             'Enter','Tab'].indexOf(code) !== -1;
   }
 
+  /* защита от стучания: таймер проверки стоит, пока висит предупреждение */
+  var guard = K.mashGuard({
+    onTrip: function(){ clearInterval(timer); timer = null; },
+    onRelease: function(){ if (started && !finished) startTimer(); }
+  });
+
   function onCorrect(){
     correct++; attempts++; streak++;
+    guard.right();
     if (streak > bestStreak) bestStreak = streak;
     el('cCorrect').textContent = correct;
     el('cStreak').textContent = streak;
@@ -133,6 +140,7 @@
 
   function onWrong(hk){
     attempts++; streak = 0;
+    guard.wrong();
     el('cStreak').textContent = streak;
     setFeedback('Почти! Нужно ' + capsText(hk), 'bad');
     // подсказать: показать сочетание на секунду даже в режиме проверки
@@ -160,6 +168,7 @@
 
   /* ---------- таймер режима «Проверка» ---------- */
   function startTimer(){
+    clearInterval(timer);
     timer = setInterval(function(){
       left--;
       if (left < 0) left = 0;
@@ -211,6 +220,7 @@
     clearInterval(timer); timer = null;
     started = false; finished = false; lockNext = false;
     correct = 0; attempts = 0; streak = 0; bestStreak = 0;
+    guard.reset();
     lastIdx = -1;
     left = TEST_SECONDS;
     el('cCorrect').textContent = '0';

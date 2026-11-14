@@ -34,6 +34,9 @@
   var fieldH = 0, lastTs = 0, raf = 0, countdownTimer = null;
 
   var keyMap = K.buildKeyboard(el('keyboard'));
+
+  /* защита от стучания: игра встаёт на паузу, продолжить — пробелом */
+  var guard = K.mashGuard({ onTrip: function(){ pause(); } });
   var hintKey = null, lowNode = null;
 
   /* ---------- рекорд сессии: отдельно для каждой сложности ---------- */
@@ -195,6 +198,7 @@
 
   function hit(t){
     caught++; streak++;
+    guard.right();
     if (streak > bestStreak) bestStreak = streak;
     removeTarget(t, 'hit');
     renderCounters();
@@ -213,6 +217,7 @@
   // неверная клавиша: жизнь не отнимаем, только сбрасываем серию
   function missPress(){
     wrong++; streak = 0;
+    guard.wrong();
     renderCounters();
     K.replay(field, 'shake');
   }
@@ -233,6 +238,7 @@
     clearInterval(countdownTimer); countdownTimer = null;
     clearLetters();
     lives = LIVES; caught = 0; wrong = 0; streak = 0; bestStreak = 0;
+    guard.reset();
     elapsed = 0; spawnIn = 0; lastCh = ''; shownSec = -1;
     kbwrap.hidden = !mode.hint;
     stage.classList.toggle('with-hint', mode.hint);
@@ -297,6 +303,7 @@
     else if (modeId === 'medium') rank = 'Два ряда под контролем. Теперь попробуй сложный уровень!';
     else rank = 'Все буквы и полная скорость. Это уровень мастера!';
     if (acc < 80) rank += ' Не торопись: лишние нажатия сбрасывают серию.';
+    if (guard.trips) rank += ' ✋ Остановок за стучание: ' + guard.trips + '.';
     el('rank').textContent = rank;
 
     stage.classList.add('finished');

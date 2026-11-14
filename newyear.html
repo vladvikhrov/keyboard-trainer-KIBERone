@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>🎄 Новогодние сани — KIBERONE</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="page-newyear">
+<canvas id="confetti"></canvas>
+<div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div class="blob b4"></div>
+
+<div class="app">
+<aside class="side">
+  <div class="side-brand"><span>⌨️</span> KIBERONE</div>
+  <a class="nav-item" href="typing-trainer.html"><span class="ic">⚡</span> Скорость печати</a>
+  <a class="nav-item" href="hotkeys.html"><span class="ic">🎹</span> Горячие клавиши</a>
+  <a class="nav-item" href="game.html"><span class="ic">🎯</span> Буквопад</a>
+  <a class="nav-item festive active" href="newyear.html"><span class="ic">🎄</span> Новогодние сани<em class="new-badge">NEW</em></a>
+  <div class="side-foot">Тренажёры клавиатуры.<br>Работает офлайн.</div>
+</aside>
+
+<div class="wrap">
+  <header>
+    <h1><span class="kbd">🛷</span> Новогодние сани</h1>
+    <div class="brand">KIBERONE</div>
+  </header>
+  <details class="howto" id="howto">
+    <summary>📖 Как играть</summary>
+    <ul>
+      <li>Сверху падают подарки 🎁. Подставь под них сани и поймай!</li>
+      <li>Сани едут, когда ты печатаешь слово: <b>слово слева</b> — шаг влево, <b>слово справа</b> — шаг вправо.</li>
+      <li>Чем дальше от центра, тем длиннее слова. Зато подарок у края стоит больше очков.</li>
+      <li>Неверная буква не печатается. <b>Backspace</b> стирает набранное, если передумал.</li>
+      <li>Упавший мимо подарок отнимает 🎄 ёлочку. Продержись <b>2 минуты</b>!</li>
+      <li><b>Пробел</b> — старт, <b>Esc</b> — пауза. Раскладку переключать не нужно.</li>
+    </ul>
+  </details>
+
+  <div class="panel">
+    <div class="modes" role="group" aria-label="Сложность">
+      <button class="mode teal" id="mEasy" aria-pressed="true">⛄ Лёгкий</button>
+      <button class="mode yellow" id="mMedium" aria-pressed="false">🦌 Средний</button>
+      <button class="mode pink" id="mHard" aria-pressed="false">🎅 Сложный</button>
+    </div>
+    <div class="spacer"></div>
+    <div class="hud">
+      <div class="stats">
+        <div class="t"><b id="cGifts">0</b><span>подарков</span></div>
+        <div class="p"><b id="cScore">0</b><span>очков</span></div>
+      </div>
+      <div class="lives" id="lives" aria-label="Жизни"><span>🎄</span><span>🎄</span><span>🎄</span><span>🎄</span><span>🎄</span></div>
+      <div class="clock" id="clock"><b id="time">2:00</b><span>осталось</span></div>
+      <button class="toggle violet" id="pause" title="Пауза (Esc)" aria-label="Пауза">⏸️</button>
+    </div>
+  </div>
+
+  <div class="record" id="recordLine"></div>
+
+  <div class="stage" id="stage">
+    <div class="field" id="field">
+      <div class="lanes" id="lanes"></div>
+      <div class="sled" id="sled"><span class="sled-body">🛷</span></div>
+      <div class="overlay" id="overlay">
+        <div class="big" id="ovBig">🛷</div>
+        <div id="ovText">Нажми пробел, чтобы начать</div>
+        <small id="ovSmall"></small>
+        <button class="btn orange" id="start">▶️ Старт</button>
+      </div>
+    </div>
+
+    <div class="wordbar" id="wordbar">
+      <div class="word left" id="wLeft"><span class="arrow">⬅️</span><span class="w"></span></div>
+      <div class="typed" id="typed"><span class="typed-label">ты печатаешь</span><b id="typedText">…</b></div>
+      <div class="word right" id="wRight"><span class="w"></span><span class="arrow">➡️</span></div>
+    </div>
+
+    <div class="results" id="results">
+      <h2 id="resTitle">С Новым годом!</h2>
+      <p class="rank" id="rank"></p>
+      <div class="scores">
+        <div class="score t"><b id="rGifts">0</b><span>подарков поймано</span></div>
+        <div class="score p"><b id="rScore">0</b><span>очков</span></div>
+        <div class="score"><b id="rWords">0</b><span>слов напечатано</span></div>
+        <div class="score"><b id="rAcc">0%</b><span>точность</span></div>
+      </div>
+      <p class="rec-note" id="recNote"></p>
+      <div class="actions">
+        <button class="btn orange" id="again">🔄 Играть ещё</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<script src="common.js"></script>
+<script src="newyear.js"></script>
+</body>
+</html>
